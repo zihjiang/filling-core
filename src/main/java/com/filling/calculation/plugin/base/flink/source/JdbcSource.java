@@ -53,6 +53,7 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
         informationMapping.put("SMALLINT", SHORT_TYPE_INFO);
         informationMapping.put("INTEGER", INT_TYPE_INFO);
         informationMapping.put("MEDIUMINT", INT_TYPE_INFO);
+        informationMapping.put("Int32", INT_TYPE_INFO);
         informationMapping.put("INT", INT_TYPE_INFO);
         informationMapping.put("BIGINT", LONG_TYPE_INFO);
         informationMapping.put("Float64", DOUBLE_TYPE_INFO);
@@ -172,7 +173,6 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
             names[i] = field;
             i++;
         }
-        System.out.println(typeInformation.length);
         return new RowTypeInfo(typeInformation, names);
     }
 

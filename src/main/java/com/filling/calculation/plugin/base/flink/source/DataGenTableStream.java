@@ -6,6 +6,7 @@ import com.filling.calculation.common.CheckConfigUtil;
 import com.filling.calculation.common.CheckResult;
 import com.filling.calculation.common.PropertiesUtil;
 import com.filling.calculation.common.TypesafeConfigUtils;
+import com.filling.calculation.domain.DataGenField;
 import com.filling.calculation.flink.FlinkEnvironment;
 import com.filling.calculation.flink.stream.FlinkStreamSource;
 import com.filling.calculation.flink.util.SchemaUtil;
@@ -29,17 +30,22 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.factories.datagen.types.RowDataGenerator;
 import org.apache.flink.types.Row;
+import scala.Int;
 
-import java.util.Properties;
+import java.util.*;
 
 public class DataGenTableStream implements FlinkStreamSource<Row> {
 
     private JSONObject config;
 
     private Object schemaInfo;
-    private final String consumerPrefix = "consumer.";
 
     private static final String SCHEMA = "schema";
+
+    private static Integer rowsPerSecond;
+    private static Long numberOfRows;
+
+    private static List<Map<String, DataGenField>> fields;
 
     @Override
     public void setConfig(JSONObject config) {
@@ -54,12 +60,7 @@ public class DataGenTableStream implements FlinkStreamSource<Row> {
     @Override
     public CheckResult checkConfig() {
 
-        CheckResult result = CheckConfigUtil.check(config, SCHEMA, RESULT_TABLE_NAME);
-
-        if (result.isSuccess()) {
-            JSONObject consumerConfig = TypesafeConfigUtils.extractSubConfig(config, consumerPrefix, false);
-            return CheckConfigUtil.check(consumerConfig);
-        }
+        CheckResult result = CheckConfigUtil.check(config, SCHEMA, RESULT_TABLE_NAME, "fields");
 
         return result;
     }
@@ -67,59 +68,24 @@ public class DataGenTableStream implements FlinkStreamSource<Row> {
     @Override
     public void prepare(FlinkEnvironment env) {
 
+        schemaInfo = JSONObject.parse(config.getString(SCHEMA), Feature.OrderedField);
+        rowsPerSecond = config.getInteger("rows-per-second");
+        numberOfRows = config.getLong("number-of-rows");
+
+        fields = JSONObject.parseObject(config.getString("fields"), List.class);
     }
 
     @Override
     public DataStream<Row> getStreamData(FlinkEnvironment env) {
 
-        String sql = "CREATE TABLE source_table (\n" +
-                "                id INT,\n" +
-                "                host String,\n" +
-                "                source String,\n" +
-                "                MetricsName String,\n" +
-                "                `value` INT,\n" +
-                "                _time AS localtimestamp\n" +
-                ") WITH (\n" +
-                "                'connector' = 'datagen',\n" +
-                "                'rows-per-second'='500000',\n" +
-                "\n" +
-                "                'fields.id.kind'='sequence',\n" +
-                "                'fields.id.start'='1',\n" +
-                "                'fields.id.end'='1000000',\n" +
-                "\n" +
-                "                'fields.host.kind'='random',\n" +
-                "                'fields.host.length'='5',\n" +
-                "\n" +
-                "                'fields.source.kind'='random',\n" +
-                "                'fields.source.length'='5',\n" +
-                "\n" +
-                "                'fields.MetricsName.kind'='random',\n" +
-                "                'fields.MetricsName.length'='5',\n" +
-                "\n" +
-                "                'fields.value.kind'='random',\n" +
-                "                'fields.value.min'='1',\n" +
-                "                'fields.value.max'='100'\n" +
-                "\n" +
-                "        )";
+        TypeInformation<Row> typeInfo = SchemaUtil.getTypeInformation((JSONObject) schemaInfo);
 
-        System.out.println(sql);
+        RandomDataGenInput randomDataGenInput    = new RandomDataGenInput(fields);
+        DataGeneratorSource dataGeneratorSource = new DataGeneratorSource(randomDataGenInput, rowsPerSecond, numberOfRows);
 
-        env.getStreamTableEnvironment().executeSql(sql);
-
-
-        Table table = env.getStreamTableEnvironment().from("source_table");
-
-        DataStream dataStream = env.getStreamTableEnvironment().toDataStream(table);
+        DataStream dataStream = env.getStreamExecutionEnvironment().addSource(dataGeneratorSource).returns(typeInfo).name(getName()).setParallelism(getParallelism());
 
         return dataStream;
-    }
-
-    private String[] getSchema() {
-        DeserializationSchema result = null;
-        String schemaContent = config.getString(SCHEMA);
-        schemaInfo = JSONObject.parse(schemaContent, Feature.OrderedField);
-
-        return new String[]{"host", "source", "MetricsName", "value"};
     }
 
     @Override

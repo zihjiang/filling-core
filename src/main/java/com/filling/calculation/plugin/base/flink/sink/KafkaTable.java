@@ -1,18 +1,23 @@
 package com.filling.calculation.plugin.base.flink.sink;
 
-import io.github.interestinglab.waterdrop.common.PropertiesUtil;
-import io.github.interestinglab.waterdrop.common.config.CheckConfigUtil;
-import io.github.interestinglab.waterdrop.common.config.CheckResult;
-import io.github.interestinglab.waterdrop.config.Config;
-import io.github.interestinglab.waterdrop.flink.FlinkEnvironment;
-import io.github.interestinglab.waterdrop.flink.stream.FlinkStreamSink;
-import io.github.interestinglab.waterdrop.flink.util.SchemaUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.filling.calculation.common.CheckConfigUtil;
+import com.filling.calculation.common.CheckResult;
+import com.filling.calculation.common.PropertiesUtil;
+import com.filling.calculation.flink.FlinkEnvironment;
+import com.filling.calculation.flink.batch.FlinkBatchSink;
+import com.filling.calculation.flink.stream.FlinkStreamSink;
+import com.filling.calculation.flink.util.SchemaUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.operators.DataSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.FormatDescriptor;
 import org.apache.flink.table.descriptors.Json;
 import org.apache.flink.table.descriptors.Kafka;
@@ -21,9 +26,9 @@ import org.apache.flink.types.Row;
 
 import java.util.Properties;
 
-public class KafkaTable implements FlinkStreamSink<Row, Row> {
+public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row, Row> {
 
-    private Config config;
+    private JSONObject config;
     private Properties kafkaParams = new Properties();
     private String topic;
 
@@ -32,6 +37,16 @@ public class KafkaTable implements FlinkStreamSink<Row, Row> {
     public DataStreamSink<Row> outputStream(FlinkEnvironment env, DataStream<Row> dataStream) {
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
         Table table = tableEnvironment.fromDataStream(dataStream);
+        insert(tableEnvironment,table);
+        return null;
+    }
+
+
+    @Override
+    public DataSink<Row> outputBatch(FlinkEnvironment env, DataSet<Row> rowDataSet) throws Exception {
+
+        BatchTableEnvironment tableEnvironment = env.getBatchTableEnvironment();
+        Table table = tableEnvironment.fromDataSet(rowDataSet);
         insert(tableEnvironment,table);
         return null;
     }
@@ -46,8 +61,8 @@ public class KafkaTable implements FlinkStreamSink<Row, Row> {
                 .withSchema(schema)
                 .withFormat(setFormat())
                 .inAppendMode()
-                .registerTableSink(uniqueTableName);
-        table.insertInto(uniqueTableName);
+                .createTemporaryTable(uniqueTableName);
+        table.executeInsert(uniqueTableName);
     }
 
 
@@ -72,12 +87,12 @@ public class KafkaTable implements FlinkStreamSink<Row, Row> {
     }
 
     @Override
-    public void setConfig(Config config) {
+    public void setConfig(JSONObject config) {
         this.config = config;
     }
 
     @Override
-    public Config getConfig() {
+    public JSONObject getConfig() {
         return config;
     }
 
@@ -93,5 +108,18 @@ public class KafkaTable implements FlinkStreamSink<Row, Row> {
         PropertiesUtil.setProperties(config, kafkaParams, producerPrefix, false);
         kafkaParams.put("key.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
         kafkaParams.put("value.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
+    }
+
+    @Override
+    public Integer getParallelism() {
+
+        // 默认为1,
+        return config.getInteger("parallelism") == null ? 1 : config.getInteger("parallelism");
+    }
+
+    @Override
+    public String getName() {
+
+        return StringUtils.isEmpty(config.getString("name")) ? config.getString("plugin_name") : config.getString("name");
     }
 }

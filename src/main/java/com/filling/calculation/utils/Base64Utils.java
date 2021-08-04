@@ -468,83 +468,77 @@ public class Base64Utils {
                     "}";
 
             String str2 = "{\n" +
-                    "    \"env\": {\n" +
-                    "        \"execution.parallelism\": 1\n" +
-                    "    },\n" +
-                    "    \"source\": [\n" +
-                    "        {\n" +
-                    "            \"simple_data\": \"{\\\"hostid\\\": \\\"host01\\\",\\\"metric\\\": \\\"cpu_user\\\",\\\"value\\\": 13, \\\"auth\\\": \\\"1|2|3|4|5\\\"}\\n{\\\"hostid\\\": \\\"host01\\\",\\\"metric\\\": \\\"cpu_user\\\",\\\"value\\\": 13, \\\"auth\\\": \\\"1|2|3|4|5\\\"}\",\n" +
-                    "            \"result_table_name\": \"FileSourceTable\",\n" +
-                    "            \"plugin_name\": \"CustomSource\",\n" +
-                    "            \"format.type\": \"text\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"transform\": [\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"FileSourceTable\",\n" +
-                    "            \"result_table_name\": \"FileSourceTable2\",\n" +
-                    "                 \"plugin_name\": \"Sql\",\n" +
-                    "            \"sql\": \"select * from  FileSourceTable \"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"sink\": [\n" +
-                    "                {\n" +
-                    "            \"path\": \"/tmp/1\",\n" +
-                    "            \"write_mode\": \"OVERWRITE\",\n" +
-                    "            \"format\": \"json\",\n" +
-                    "            \"source_table_name\": \"FileSourceTable2\",\n" +
-                    "            \"plugin_name\": \"FileSink\"\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}";
-
-            String kafkaSource = "{\n" +
                     "  \"env\": {\n" +
-                    "    \"execution.parallelism\": 1\n" +
+                    "    \"execution.parallelism\": 1,\n" +
+                    "    \"execution.time-characteristic\": \"event-time\",\n" +
+                    "    \"job.name\": \"wattttt\"\n" +
                     "  },\n" +
                     "  \"source\": [\n" +
                     "    {\n" +
-                    "      \"plugin_name\": \"KafkaTableStream\",\n" +
-                    "      \"consumer.group.id\": \"waterdrop19\",\n" +
-                    "      \"topics\": \"batchSend\",\n" +
-                    "      \"result_table_name\": \"KafkaTableStreamTable\",\n" +
-                    "      \"format.type\": \"json\",\n" +
-                    "      \"schema\": \"{\\\"host\\\":\\\"192.168.1.103\\\",\\\"source\\\":\\\"datasource\\\",\\\"MetricsName\\\":\\\"cpu\\\",\\\"value\\\":\\\"49\\\",\\\"_time\\\":1626571020000}\",\n" +
-                    "      \"format.allow-comments\": \"true\",\n" +
-                    "      \"format.ignore-parse-errors\": \"true\",\n" +
-                    "      \"offset.reset\": \"earliest\",\n" +
-                    "      \"consumer.bootstrap.servers\": \"192.168.100.189:9092\",\n" +
-                    "      \"parallelism\": 1,\n" +
-                    "      \"name\": \"mykafka\"\n" +
+                    "      \"plugin_name\": \"DataGenTableStream\",\n" +
+                    "      \"result_table_name\": \"dataGenTableStreamTable\",\n" +
+                    "      \"schema\": \"{\\\"id\\\":1, \\\"host\\\":\\\"192.168.1.103\\\",\\\"source\\\":\\\"datasource\\\",\\\"MetricsName\\\":\\\"cpu\\\",\\\"value\\\":49}\",\n" +
+                    "      \"rows-per-second\": 10,\n" +
+                    "      \"number-of-rows\": 100000000,\n" +
+                    "      \"fields\": [\n" +
+                    "        {\n" +
+                    "          \"id\": {\n" +
+                    "            \"type\": \"Int\",\n" +
+                    "            \"min\": 1,\n" +
+                    "            \"max\": 2\n" +
+                    "          }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"host\": {\n" +
+                    "            \"type\": \"String\",\n" +
+                    "            \"length\": 5\n" +
+                    "          }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"source\": {\n" +
+                    "            \"type\": \"String\",\n" +
+                    "            \"length\": 10\n" +
+                    "          }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"MetricsName\": {\n" +
+                    "            \"type\": \"String\",\n" +
+                    "            \"length\": 10\n" +
+                    "          }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"value\": {\n" +
+                    "            \"type\": \"Int\",\n" +
+                    "            \"min\": 1,\n" +
+                    "            \"max\": 2\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ],\n" +
+                    "      \"parallelism\": 2,\n" +
+                    "      \"name\": \"my-datagen-source\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"transform\": [\n" +
                     "    {\n" +
-                    "      \"source_table_name\": \"KafkaTableStreamTable\",\n" +
-                    "      \"result_table_name\": \"DataSelector_default\",\n" +
-                    "      \"plugin_name\": \"DataSelector\",\n" +
-                    "      \"select.result_table_name\": [\n" +
-                    "        \"DataSelector_high\",\n" +
-                    "        \"DataSelector_low\"\n" +
-                    "      ],\n" +
-                    "      \"select.DataSelector_high.where\": \" value >'50'\",\n" +
-                    "      \"select.DataSelector_low.where\": \" value <= '50'\"\n" +
+                    "      \"source_table_name\": \"dataGenTableStreamTable\",\n" +
+                    "      \"result_table_name\": \"FieldOperation_time\",\n" +
+                    "      \"plugin_name\": \"FieldOperation\",\n" +
+                    "      \"target_field\": \"_time\",\n" +
+                    "      \"script\": \"UNIX_TIMESTAMP()*1000\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"sink\": [\n" +
                     "    {\n" +
-                    "      \"source_table_name\": \"DataSelector_low\",\n" +
-                    "      \"plugin_name\": \"ClickHouseSink\",\n" +
-                    "      \"driver\": \"ru.yandex.clickhouse.ClickHouseDriver\",\n" +
-                    "      \"url\": \"jdbc:clickhouse://192.168.100.15:8123/aiops\",\n" +
-                    "      \"query\": \"insert into host_metric07(host, metric, value, system, instance, _time) values(?,?,?,?,?,?)\",\n" +
-                    "      \"batch_size\": \"10000\",\n" +
-                    "      \"parallelism\": 3,\n" +
-                    "      \"name\": \"mytest\"\n" +
+                    "      \"source_table_name\": \"FieldOperation_time\",\n" +
+                    "      \"plugin_name\": \"KafkaTable\",\n" +
+                    "      \"producer.bootstrap.servers\": \"192.168.1.218:9092\",\n" +
+                    "      \"topics\": \"test\",\n" +
+                    "      \"parallelism\": 2,\n" +
+                    "      \"name\": \"my-kafka-sink\"\n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";
-            System.out.println(encode(kafkaSource));
+            System.out.println(encode(str2));
         }
 
     }

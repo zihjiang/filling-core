@@ -4,19 +4,18 @@
   },
   "source": [
     {
-      "plugin_name": "JdbcSource",
-      "driver": "ru.yandex.clickhouse.ClickHouseDriver",
-      "result_table_name": "JdbcSourceTable",
-      "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",
-      "query": "select * from host_metric08",
-      "fetch_size": 1000
+      "schema": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
+      "simple_data": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}\n{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
+      "result_table_name": "FileSourceTable",
+      "plugin_name": "CustomSource",
+      "format.type": "json"
     }
   ],
   "transform": [
   ],
   "sink": [
     {
-      "source_table_name": "JdbcSourceTable",
+      "source_table_name": "FileSourceTable",
       "plugin_name": "KafkaTable",
       "producer.bootstrap.servers": "192.168.1.218:9092",
       "topics": "test"

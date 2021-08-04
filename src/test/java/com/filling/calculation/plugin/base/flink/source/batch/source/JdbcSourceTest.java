@@ -44,6 +44,26 @@ public class JdbcSourceTest {
         Assert.assertEquals(outputResult, JSONObject.toJSONString(list));
     }
 
+    @Test
+    public void testSourceJdbc2Kafka() throws Exception {
+        configPath = "flink/batch/BatchJdbc2Kafka.json";
+        String inputConfig = readFile(configPath);
+//        String outputResult = readFile("flink/batch/result/JdbcSourceBatch.json");
+
+        List<PreviewResult> list = Filling.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
+//        Assert.assertEquals(outputResult, JSONObject.toJSONString(list));
+    }
+
+    @Test
+    public void testSourceCustom2Kafka() throws Exception {
+        configPath = "flink/batch/BatchCustom2Kafka.json";
+        String inputConfig = readFile(configPath);
+//        String outputResult = readFile("flink/batch/result/JdbcSourceBatch.json");
+
+        List<PreviewResult> list = Filling.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
+//        Assert.assertEquals(outputResult, JSONObject.toJSONString(list));
+    }
+
 
     private String readFile(String path) {
         String result = "";

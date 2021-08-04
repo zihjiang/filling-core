@@ -94,9 +94,18 @@ public class KafkaTableStreamTest {
     }
 
     @Test
-    public void testDataGen2CKe() throws Exception {
+    public void testDataGen2CK() throws Exception {
 
         configPath = "flink/datagen2CK.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
+    @Test
+    public void testDataGen2Kafka() throws Exception {
+
+        configPath = "flink/datagen2kafka.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
         Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);

@@ -13,6 +13,7 @@ import com.filling.calculation.env.RuntimeEnv;
 import com.filling.calculation.flink.util.Engine;
 import com.filling.calculation.flink.util.PluginType;
 import com.filling.calculation.plugin.Plugin;
+import org.apache.commons.cli.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Base64;
@@ -104,6 +105,8 @@ public class Filling {
     }
 
     public static void main(String[] args) throws Exception {
+
+
         if(args.length < 1) {
             System.out.println("for example: {'dd': 'sa'}");
         } else {

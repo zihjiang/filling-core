@@ -1,18 +1,35 @@
 package com.filling.calculation.plugin.base.flink.source;
 
+import com.alibaba.fastjson.JSONObject;
+import com.filling.calculation.domain.DataGenField;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGenerator;
 import org.apache.flink.types.Row;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class RandomDataGenInput implements DataGenerator<Row> {
+
+    private List<Map<String, DataGenField>> fields = new ArrayList<>();
+
+    public RandomDataGenInput(List<Map<String, DataGenField>> fields) {
+
+        System.out.println("structure fields.toString(): " + fields.toString());
+
+        this.fields = fields;
+
+    }
     // 随机数据生成器对象
-    RandomDataGenerator generator;
+    RandomDataGenerator randomDataGenerator;
+
     @Override
     public void open(String s, FunctionInitializationContext functionInitializationContext, RuntimeContext runtimeContext) throws Exception {
         // 实例化生成器对象
-        generator = new RandomDataGenerator();
+        randomDataGenerator = new RandomDataGenerator();
     }
 
     @Override
@@ -22,14 +39,24 @@ public class RandomDataGenInput implements DataGenerator<Row> {
 
     @Override
     public Row next() {
-        Row row = new Row(5);
+        Row row = Row.withNames();
+        for (int i = 0; i < fields.size(); i++) {
+            Map map = fields.get(i);
+            map.keySet().stream().forEach(
+                    key -> {
+                        DataGenField dataGenField = JSONObject.parseObject(map.get(key).toString(), DataGenField.class);
+                        switch (dataGenField.getType()){
+                            case "String":
+                                row.setField(key.toString(), randomDataGenerator.nextHexString(dataGenField.getLength()));
+                                break;
+                            case "Int":
+                                row.setField(key.toString(), randomDataGenerator.nextInt(dataGenField.getMin(), dataGenField.getMax()));
+                                break;
+                        }
+                    }
+            );
+        }
 
-        // {"host":"192.168.1.103","source":"datasource","MetricsName":"cpu","value":"49","_time":1626571020000}
-        row.setField("host", generator.nextHexString(3));
-        row.setField("source", generator.nextHexString(2));
-        row.setField("MetricsName", generator.nextHexString(5));
-        row.setField("value", generator.nextHexString(5));
-        row.setField("_time", System.currentTimeMillis());
         return row;
     }
 }

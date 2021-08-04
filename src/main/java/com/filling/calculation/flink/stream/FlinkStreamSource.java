@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 
 public interface FlinkStreamSource<T> extends BaseFlinkSource {
 
-    DataStream<T> getStreamData(FlinkEnvironment env);
+    DataStream<T> getStreamData(FlinkEnvironment env) throws NoSuchFieldException;
 
 
 }
