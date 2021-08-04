@@ -4,8 +4,8 @@
   },
   "source": [
     {
-      "schema": "{\"hostid\": \"host01\",\"metric\": \"cpu_user\",\"value\": 13, \"auth\": \"1|2|3|4|5\"}",
-      "simple_data": "{\"hostid\": \"host01\",\"metric\": \"cpu_user\",\"value\": 13, \"auth\": \"1|2|3|4|5\"}\n{\"hostid\": \"host01\",\"metric\": \"cpu_user\",\"value\": 13, \"auth\": \"1|2|3|4|5\"}",
+      "schema": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
+      "simple_data": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}\n{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
       "result_table_name": "FileSourceTable",
       "plugin_name": "CustomSource",
       "format.type": "json"
@@ -17,12 +17,13 @@
     {
       "source_table_name": "FileSourceTable",
       "plugin_name": "ClickHouseSink",
-      "driver": "com.mysql.jdbc.Driver",
-      "url": "jdbc:mysql://127.0.0.1:30306/dc",
-      "username": "root",
-      "query": "insert into table t1(a,b,c)",
-      "password": "root",
-      "batch_size": "1"
+      "driver": "ru.yandex.clickhouse.ClickHouseDriver",
+      "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",
+      "query": "insert into host_metric09(host, metric, value, system, instance, _time) values(?,?,?,?,?,?)",
+      "batch_size": "2000",
+      "params": ["host", "MetricsName", "value", "host", "source", "_time"],
+      "parallelism": 5,
+      "name": "mytest"
     }
   ]
 }

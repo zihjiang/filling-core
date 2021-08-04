@@ -1,6 +1,6 @@
 package com.filling.calculation.plugin.base.flink.source.stream;
 
-import com.filling.calculation.Waterdrop;
+import com.filling.calculation.Filling;
 import com.filling.calculation.domain.RunModel;
 import com.filling.calculation.flink.util.Engine;
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/kafka2es.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/KafkaJoinJdbc2es.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/KafkaDataAggregates.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/KafkaDataAggregates4pf.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/kafka2esAuth.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.DEV);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.DEV);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class KafkaTableStreamTest {
         configPath = "flink/kafka2Console.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
     @Test
@@ -81,7 +81,26 @@ public class KafkaTableStreamTest {
         configPath = "flink/kafka2ck.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
-        Waterdrop.entryPoint(str, Engine.FLINK, RunModel.PROD);
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
+
+    @Test
+    public void testDataGen2console() throws Exception {
+
+        configPath = "flink/datagen2Console.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
+    @Test
+    public void testDataGen2CKe() throws Exception {
+
+        configPath = "flink/datagen2CK.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
 
 }

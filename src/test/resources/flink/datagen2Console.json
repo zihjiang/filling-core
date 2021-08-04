@@ -1,0 +1,24 @@
+{
+  "env": {
+    "execution.parallelism": 1,
+    "execution.time-characteristic": "event-time",
+    "job.name": "wattttt"
+  },
+  "source": [
+    {
+      "plugin_name": "DataGenTableStream",
+      "result_table_name": "dataGenTableStreamTable",
+      "schema": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
+      "parallelism": 10,
+      "name": "mykafka"
+    }
+  ],
+  "transform": [
+  ],
+  "sink": [
+    {
+      "source_table_name": "dataGenTableStreamTable",
+      "plugin_name": "ConsoleSink"
+    }
+  ]
+}

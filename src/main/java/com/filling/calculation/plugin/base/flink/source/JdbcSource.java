@@ -47,6 +47,7 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
 
     {
         informationMapping.put("VARCHAR", STRING_TYPE_INFO);
+        informationMapping.put("String", STRING_TYPE_INFO);
         informationMapping.put("BOOLEAN", BOOLEAN_TYPE_INFO);
         informationMapping.put("TINYINT", BYTE_TYPE_INFO);
         informationMapping.put("SMALLINT", SHORT_TYPE_INFO);
@@ -54,11 +55,13 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
         informationMapping.put("MEDIUMINT", INT_TYPE_INFO);
         informationMapping.put("INT", INT_TYPE_INFO);
         informationMapping.put("BIGINT", LONG_TYPE_INFO);
+        informationMapping.put("Float64", DOUBLE_TYPE_INFO);
         informationMapping.put("FLOAT", FLOAT_TYPE_INFO);
         informationMapping.put("DOUBLE", DOUBLE_TYPE_INFO);
         informationMapping.put("CHAR", STRING_TYPE_INFO);
         informationMapping.put("TEXT", STRING_TYPE_INFO);
         informationMapping.put("LONGTEXT", STRING_TYPE_INFO);
+        informationMapping.put("DateTime", SqlTimeTypeInfo.TIMESTAMP);
         informationMapping.put("DATE", SqlTimeTypeInfo.DATE);
         informationMapping.put("TIME", SqlTimeTypeInfo.TIME);
         informationMapping.put("TIMESTAMP", SqlTimeTypeInfo.TIMESTAMP);
@@ -90,7 +93,7 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
 
     @Override
     public CheckResult checkConfig() {
-        return CheckConfigUtil.check(config, "driver", "url", "username", "query");
+        return CheckConfigUtil.check(config, "driver", "url", "query");
     }
 
     @Override
@@ -145,6 +148,7 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
                 String dataTypeName = columns.getString("TYPE_NAME");
                 if (fields == null || fields.contains(columnName)) {
                     map.put(columnName, informationMapping.get(dataTypeName));
+                    System.out.println( columnName +":  " + dataTypeName);
                 }
             }
             connection.close();
@@ -168,6 +172,7 @@ public class JdbcSource implements  FlinkStreamSource<Row>, FlinkBatchSource<Row
             names[i] = field;
             i++;
         }
+        System.out.println(typeInformation.length);
         return new RowTypeInfo(typeInformation, names);
     }
 

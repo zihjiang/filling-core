@@ -1,7 +1,7 @@
 package com.filling.calculation.plugin.base.flink.source.batch.source;
 
 import com.alibaba.fastjson.JSONObject;
-import com.filling.calculation.Waterdrop;
+import com.filling.calculation.Filling;
 import com.filling.calculation.domain.PreviewResult;
 import com.filling.calculation.domain.RunModel;
 import com.filling.calculation.flink.util.Engine;
@@ -40,7 +40,7 @@ public class JdbcSourceTest {
         String inputConfig = readFile(configPath);
         String outputResult = readFile("flink/batch/result/JdbcSourceBatch.json");
 
-        List<PreviewResult> list = Waterdrop.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
+        List<PreviewResult> list = Filling.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
         Assert.assertEquals(outputResult, JSONObject.toJSONString(list));
     }
 

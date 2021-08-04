@@ -500,88 +500,47 @@ public class Base64Utils {
 
             String kafkaSource = "{\n" +
                     "  \"env\": {\n" +
-                    "    \"execution.parallelism\": 1,\n" +
-                    "    \"execution.time-characteristic\": \"event-time\",\n" +
-                    "    \"job.name\": \"wattttt\"\n" +
+                    "    \"execution.parallelism\": 1\n" +
                     "  },\n" +
                     "  \"source\": [\n" +
                     "    {\n" +
                     "      \"plugin_name\": \"KafkaTableStream\",\n" +
-                    "      \"consumer.group.id\": \"waterdrop5\",\n" +
-                    "      \"topics\": \"aiops-test\",\n" +
+                    "      \"consumer.group.id\": \"waterdrop19\",\n" +
+                    "      \"topics\": \"batchSend\",\n" +
                     "      \"result_table_name\": \"KafkaTableStreamTable\",\n" +
                     "      \"format.type\": \"json\",\n" +
-                    "      \"schema\": \"{\\\"trans_time\\\":0.105,\\\"ts\\\": 1575215715666, \\\"@filename\\\":\\\"TRADEINFO_G00_2019-1201_1.trd\\\",\\\"@filepath\\\":\\\"/opt/datas/afa-trade/TRADEINFO_G00_2019-1201_1.trd\\\",\\\"@hostname\\\":\\\"filling-15\\\",\\\"@linenum\\\":\\\"27458\\\",\\\"@message\\\":\\\"G00 PID:9240950 T000019_510412.pyc  清单打印 P510412_D1017_C0_Q0_N58@32.3.34.1.log 000019 20171017 未知 未知 未知 未知 36208640 36208640 0 36118528 36118528 0 2017/10/17 BGN:11:16:02.187 END:11:16:02.292 USE:0.105\\\",\\\"@rule_alias\\\":\\\"afa_trade\\\",\\\"@rule_name\\\":\\\"afa_trade\\\",\\\"@store_name\\\":\\\"afa-trade\\\",\\\"@timestamp\\\":\\\"2019-12-01\\\",\\\"date\\\":\\\"20171017\\\",\\\"description\\\":\\\" 清单打印\\\",\\\"end_time\\\":\\\"2017-10-17T11:16:02.292Z\\\",\\\"host_time\\\":\\\"未知\\\",\\\"logname\\\":\\\"P510412_D1017_C0_Q0_N58@32.3.34.1.log\\\",\\\"mem_1\\\":36208640,\\\"mem_2\\\":36208640,\\\"mem_3\\\":0,\\\"mem_4\\\":36118528,\\\"mem_5\\\":36118528,\\\"mem_6\\\":0,\\\"pid\\\":\\\"9240950\\\",\\\"pycname\\\":\\\"T000019_510412.pyc\\\",\\\"serial_no\\\":\\\"未知\\\",\\\"sysid\\\":\\\"000019\\\",\\\"third_time\\\":\\\"未知\\\",\\\"timestamp\\\":\\\"2019-12-01T11:16:02.187Z\\\",\\\"trade_type\\\":\\\"未知\\\",\\\"workgroup\\\":\\\"G00\\\" }\",\n" +
-                    "      \"format.field-delimiter\": \";\",\n" +
+                    "      \"schema\": \"{\\\"host\\\":\\\"192.168.1.103\\\",\\\"source\\\":\\\"datasource\\\",\\\"MetricsName\\\":\\\"cpu\\\",\\\"value\\\":\\\"49\\\",\\\"_time\\\":1626571020000}\",\n" +
                     "      \"format.allow-comments\": \"true\",\n" +
                     "      \"format.ignore-parse-errors\": \"true\",\n" +
-                    "      \"consumer.zookeeper.connect\": \"10.10.14.45:2181\",\n" +
-                    "      \"consumer.bootstrap.servers\": \"10.10.14.46:9092\",\n" +
-                    "      \"rowtime.field\": \"ts\",\n" +
-                    "      \"watermark\": 1000\n" +
-                    "\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "      \"plugin_name\": \"JdbcSource\",\n" +
-                    "      \"driver\": \"com.mysql.jdbc.Driver\",\n" +
-                    "      \"result_table_name\": \"JdbcSourceTable\",\n" +
-                    "      \"url\": \"jdbc:mysql://10.10.14.17:3306/tmp\",\n" +
-                    "      \"username\": \"aiops\",\n" +
-                    "      \"password\": \"aiops\",\n" +
-                    "      \"query\": \"select * from t_group\"\n" +
+                    "      \"offset.reset\": \"earliest\",\n" +
+                    "      \"consumer.bootstrap.servers\": \"192.168.100.189:9092\",\n" +
+                    "      \"parallelism\": 1,\n" +
+                    "      \"name\": \"mykafka\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"transform\": [\n" +
                     "    {\n" +
                     "      \"source_table_name\": \"KafkaTableStreamTable\",\n" +
-                    "      \"result_table_name\": \"KafkaTableStreamTable_default\",\n" +
-                    "      \"plugin_name\": \"DataJoin\",\n" +
-                    "      \"join.source_table_name\": [\n" +
-                    "        \"JdbcSourceTable\"\n" +
-                    "      ],\n" +
-                    "      \"join.JdbcSourceTable.where\": \"workgroup = host\",\n" +
-                    "      \"join.JdbcSourceTable.type\": \"left\"\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "      \"source_table_name\": \"KafkaTableStreamTable_default\",\n" +
                     "      \"result_table_name\": \"DataSelector_default\",\n" +
                     "      \"plugin_name\": \"DataSelector\",\n" +
                     "      \"select.result_table_name\": [\n" +
-                    "        \"DataSelector_unknown\",\n" +
-                    "        \"DataSelector_other\"\n" +
+                    "        \"DataSelector_high\",\n" +
+                    "        \"DataSelector_low\"\n" +
                     "      ],\n" +
-                    "      \"select.DataSelector_unknown.where\": \" serial_no ='未知'\",\n" +
-                    "      \"select.DataSelector_other.where\": \" serial_no !='未知'\"\n" +
+                    "      \"select.DataSelector_high.where\": \" value >'50'\",\n" +
+                    "      \"select.DataSelector_low.where\": \" value <= '50'\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"sink\": [\n" +
                     "    {\n" +
-                    "      \"source_table_name\": \"DataSelector_unknown\",\n" +
-                    "      \"plugin_name\": \"Elasticsearch\",\n" +
-                    "      \"hosts\": [\n" +
-                    "        \"10.10.14.51:9200\"\n" +
-                    "      ],\n" +
-                    "      \"index\": \"waterdrop_unknown\",\n" +
-                    "      \"es.bulk.flush.max.actions\": 1000,\n" +
-                    "      \"es.bulk.flush.max.size.mb\": 2,\n" +
-                    "      \"es.bulk.flush.interval.ms\": 1000,\n" +
-                    "      \"es.bulk.flush.backoff.enable\": true,\n" +
-                    "      \"es.bulk.flush.backoff.delay\": 50,\n" +
-                    "      \"es.bulk.flush.backoff.retries\": 8\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "      \"source_table_name\": \"DataSelector_other\",\n" +
-                    "      \"plugin_name\": \"Elasticsearch\",\n" +
-                    "      \"hosts\": [\n" +
-                    "        \"10.10.14.51:9200\"\n" +
-                    "      ],\n" +
-                    "      \"index\": \"waterdrop_other\",\n" +
-                    "      \"es.bulk.flush.max.actions\": 1000,\n" +
-                    "      \"es.bulk.flush.max.size.mb\": 2,\n" +
-                    "      \"es.bulk.flush.interval.ms\": 1000,\n" +
-                    "      \"es.bulk.flush.backoff.enable\": true,\n" +
-                    "      \"es.bulk.flush.backoff.delay\": 50,\n" +
-                    "      \"es.bulk.flush.backoff.retries\": 8\n" +
+                    "      \"source_table_name\": \"DataSelector_low\",\n" +
+                    "      \"plugin_name\": \"ClickHouseSink\",\n" +
+                    "      \"driver\": \"ru.yandex.clickhouse.ClickHouseDriver\",\n" +
+                    "      \"url\": \"jdbc:clickhouse://192.168.100.15:8123/aiops\",\n" +
+                    "      \"query\": \"insert into host_metric07(host, metric, value, system, instance, _time) values(?,?,?,?,?,?)\",\n" +
+                    "      \"batch_size\": \"10000\",\n" +
+                    "      \"parallelism\": 3,\n" +
+                    "      \"name\": \"mytest\"\n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";

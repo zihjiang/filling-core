@@ -1,0 +1,31 @@
+{
+  "env": {
+    "execution.parallelism": 1,
+    "execution.time-characteristic": "event-time",
+    "job.name": "wattttt"
+  },
+  "source": [
+    {
+      "plugin_name": "DataGenTableStream",
+      "result_table_name": "dataGenTableStreamTable",
+      "schema": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
+      "parallelism": 10,
+      "name": "mykafka"
+    }
+  ],
+  "transform": [
+  ],
+  "sink": [
+    {
+      "source_table_name": "dataGenTableStreamTable",
+      "plugin_name": "ClickHouseSink",
+      "driver": "ru.yandex.clickhouse.ClickHouseDriver",
+      "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",
+      "query": "insert into host_metric12(host, metric, value, system, instance, _time) values(?,?,?,?,?,?)",
+      "batch_size": "20000",
+      "params": ["host", "MetricsName", "value", "host", "source", "_time"],
+      "parallelism": 5,
+      "name": "mytest"
+    }
+  ]
+}
