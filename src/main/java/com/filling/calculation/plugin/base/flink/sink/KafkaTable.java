@@ -62,7 +62,7 @@ public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row
                 .withFormat(setFormat())
                 .inAppendMode()
                 .createTemporaryTable(uniqueTableName);
-        table.executeInsert(uniqueTableName);
+        table.insertInto(uniqueTableName);
     }
 
 
