@@ -16,6 +16,8 @@ import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
+import static org.apache.flink.table.api.Expressions.$;
+
 public class EncodeBase64 implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<Row, Row> {
 
 
@@ -47,6 +49,7 @@ public class EncodeBase64 implements FlinkBatchTransform<Row, Row>, FlinkStreamT
             .replaceAll("\\{function_name}", FUNCTION_NAME)
             .replaceAll("\\{source_field}", config.getString(SOURCE_FIELD_NAME))
             .replaceAll("\\{target_field}", config.getString(TARGET_FIELD_NAME));
+
         Table table = tableEnvironment.sqlQuery(sql).dropColumns(config.getString(SOURCE_FIELD_NAME));
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, table) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, table, false);
     }

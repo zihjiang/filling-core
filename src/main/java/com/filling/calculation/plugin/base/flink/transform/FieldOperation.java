@@ -14,7 +14,11 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.table.expressions.Expression;
+import org.apache.flink.table.expressions.ExpressionParser;
 import org.apache.flink.types.Row;
+
+import java.util.List;
 
 public class FieldOperation implements FlinkBatchTransform<Row, Row> , FlinkStreamTransform<Row, Row> {
 
@@ -46,6 +50,8 @@ public class FieldOperation implements FlinkBatchTransform<Row, Row> , FlinkStre
             .replaceAll("\\{target_field_name}", config.getString(TARGET_FIELD_NAME))
             .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
 
+//        Table table = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)).select(_(config.getString(SCRIPT_NAME))).as(config.getString(TARGET_FIELD_NAME));
+
         Table table = tableEnvironment.sqlQuery(sql);
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, table) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, table, false);
     }
@@ -69,5 +75,16 @@ public class FieldOperation implements FlinkBatchTransform<Row, Row> , FlinkStre
     @Override
     public void prepare(FlinkEnvironment env) {
         SCRIPT = config.getString(SCRIPT_NAME);
+    }
+
+    /**
+     * 防止idea提示废弃
+     * @param expr
+     * @return
+     */
+    private Expression[] _(String expr) {
+
+        List<Expression> expressions = ExpressionParser.parseExpressionList(expr);
+        return expressions.toArray(new Expression[0]);
     }
 }

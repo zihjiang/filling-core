@@ -192,7 +192,7 @@ public class DtStringUtil {
 
     public static String col2string(Object column, String type) {
         String rowData = column.toString();
-        ColumnType columnType = ColumnType.valueOf(type.toUpperCase());
+        ColumnType columnType = ColumnType.fromString(type.toUpperCase());
         Object result = null;
         switch (columnType) {
             case TINYINT:
@@ -221,6 +221,7 @@ public class DtStringUtil {
             case STRING:
             case VARCHAR:
             case CHAR:
+            case LOCALDATETIME:
                 result = rowData;
                 break;
             case BOOLEAN:

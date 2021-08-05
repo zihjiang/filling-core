@@ -115,8 +115,15 @@ public enum ColumnType {
      * @param LONG
      * @return
      */
-    LONG;
+    LONG,
 
+    /**
+     *
+     * @param type
+     * @return
+     */
+
+    LOCALDATETIME;
     public static ColumnType fromString(String type) {
         if(type == null) {
             throw new RuntimeException("null ColumnType!");

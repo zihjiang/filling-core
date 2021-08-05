@@ -46,7 +46,7 @@ public class RandomDataGenInput implements DataGenerator<Row> {
                     key -> {
                         DataGenField dataGenField = JSONObject.parseObject(map.get(key).toString(), DataGenField.class);
                         switch (dataGenField.getType()){
-                            case "String":
+                            case "{\"instance\":\"192.168.1.13_cpu2_PP1A\",\"system\":\"PP1A\",\"metric\":\"cpu2\",\"host\":\"192.168.1.13\",\"value\":1.37,\"_time\":\"2021-06-01 23:19:00\"}":
                                 row.setField(key.toString(), randomDataGenerator.nextHexString(dataGenField.getLength()));
                                 break;
                             case "Int":

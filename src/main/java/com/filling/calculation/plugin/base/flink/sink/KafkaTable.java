@@ -1,6 +1,7 @@
 package com.filling.calculation.plugin.base.flink.sink;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.filling.calculation.common.CheckConfigUtil;
 import com.filling.calculation.common.CheckResult;
 import com.filling.calculation.common.PropertiesUtil;
@@ -9,11 +10,16 @@ import com.filling.calculation.flink.batch.FlinkBatchSink;
 import com.filling.calculation.flink.stream.FlinkStreamSink;
 import com.filling.calculation.flink.util.SchemaUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.operators.DataSink;
+import org.apache.flink.formats.json.JsonRowDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
@@ -38,12 +44,39 @@ public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
         Table table = tableEnvironment.fromDataStream(dataStream);
         insert(tableEnvironment,table);
+
+
+//        Properties properties = new Properties();
+//        properties.setProperty("bootstrap.servers", "localhost:9092");
+//
+//        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<Row>(
+//                "my-topic",                  // target topic
+//                (KafkaSerializationSchema<Row>) getSchema1(dataStream),    // serialization schema
+//                properties,                  // producer config
+//                FlinkKafkaProducer.Semantic.EXACTLY_ONCE); // fault-tolerance
+//
+//        dataStream.addSink(myProducer);
+
+
         return null;
     }
 
 
+    private KafkaSerializationSchema getSchema1(DataStream<Row> dataStream) {
+        KafkaSerializationSchema result = null;
+
+
+        TypeInformation<Row> typeInfo = dataStream.getType();
+        // 忽略转换错误引发的退出任务, 提升健壮性,
+//        result = new JsonRowDeserializationSchema.Builder(typeInfo).ignoreParseErrors().build();
+
+
+        return result;
+    }
+
+
     @Override
-    public DataSink<Row> outputBatch(FlinkEnvironment env, DataSet<Row> rowDataSet) throws Exception {
+    public DataSink<Row> outputBatch(FlinkEnvironment env, DataSet<Row> rowDataSet){
 
         BatchTableEnvironment tableEnvironment = env.getBatchTableEnvironment();
         Table table = tableEnvironment.fromDataSet(rowDataSet);
@@ -62,7 +95,14 @@ public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row
                 .withFormat(setFormat())
                 .inAppendMode()
                 .createTemporaryTable(uniqueTableName);
-        table.insertInto(uniqueTableName);
+
+//        table.insertInto(uniqueTableName);
+
+//        table.executeInsert()
+//        table.intersect(tableEnvironment.from(uniqueTableName));
+
+//        tableEnvironment.from(uniqueTableName).intersect(table);
+        table.executeInsert(uniqueTableName);
     }
 
 
