@@ -19,6 +19,12 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @program: calculation-core
+ * @description:
+ * @author: zihjiang
+ * @create: 2021-06-26 16:10
+ **/
 public class FlinkEnvironment implements RuntimeEnv {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkEnvironment.class);
@@ -38,18 +44,22 @@ public class FlinkEnvironment implements RuntimeEnv {
     private String jobName = "filling";
 
 
+    @Override
     public void setConfig(JSONObject config) {
         this.config = config;
     }
 
+    @Override
     public JSONObject getConfig() {
         return config;
     }
 
+    @Override
     public CheckResult checkConfig() {
         return EnvironmentUtil.checkRestartStrategy(config);
     }
 
+    @Override
     public void prepare(Boolean isStreaming) {
         this.isStreaming = isStreaming;
         if (isStreaming) {

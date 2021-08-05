@@ -20,6 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @program: calculation-core
+ * @description:
+ * @author: zihjiang
+ * @create: 2021-06-26 16:10
+ **/
 public class DataSelector implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<Row, Row> {
 
 
@@ -39,6 +45,7 @@ public class DataSelector implements FlinkBatchTransform<Row, Row>, FlinkStreamT
     String PRE = "select.";
     String SUFFIX= ".where";
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
@@ -79,8 +86,9 @@ public class DataSelector implements FlinkBatchTransform<Row, Row>, FlinkStreamT
     @Override
     public CheckResult checkConfig() {
         for (String table: SELECT_RESULT_TABLE_NAME) {
-            if(!CheckConfigUtil.check(config, PRE + table + SUFFIX).isSuccess())
+            if(!CheckConfigUtil.check(config, PRE + table + SUFFIX).isSuccess()) {
                 return CheckConfigUtil.check(config, PRE + table + SUFFIX);
+            }
         }
         return CheckConfigUtil.check(config,SELECT_RESULT_TABLE_NAME_NAME);
     }

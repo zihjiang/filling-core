@@ -27,6 +27,7 @@ public class EncodeBase64 implements FlinkBatchTransform<Row, Row>, FlinkStreamT
 
     private static String TARGET_FIELD_NAME = "target_field";
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();

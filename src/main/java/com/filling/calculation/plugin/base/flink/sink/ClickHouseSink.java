@@ -20,15 +20,15 @@ import org.apache.flink.connector.jdbc.JdbcOutputFormat;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.types.Row;
 
-import java.io.IOException;
 
-
+/**
+ * @program: calculation-core
+ * @description:
+ * @author: zihjiang
+ * @create: 2021-06-26 16:10
+ **/
 public class ClickHouseSink implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row, Row> {
 
     JSONObject config;

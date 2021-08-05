@@ -160,7 +160,7 @@ public class DtStringUtil {
                 tempSb.append(chars[index]);
             }
 
-            if (tempSb.toString().equals("--")) {
+            if ("--".equals(tempSb.toString())) {
                 if (inQuotes) {
                     b.append(chars[index]);
                 } else if (inSingleQuotes) {

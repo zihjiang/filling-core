@@ -25,6 +25,7 @@ public class FieldRename implements FlinkBatchTransform<Row, Row>, FlinkStreamTr
 
     private static String TARGET_FIELD_NAME = "target_field";
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();

@@ -64,8 +64,12 @@ public class PreviewResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PreviewResult that = (PreviewResult) o;
         return Objects.equals(TableName, that.TableName) && Objects.equals(Type, that.Type) && Objects.equals(Data, that.Data) && Objects.equals(Column, that.Column) && Objects.equals(Status, that.Status) && Objects.equals(Error, that.Error);
     }

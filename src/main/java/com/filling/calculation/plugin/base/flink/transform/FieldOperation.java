@@ -29,6 +29,7 @@ public class FieldOperation implements FlinkBatchTransform<Row, Row> , FlinkStre
     private static String TARGET_FIELD_NAME = "target_field";
     private static String SCRIPT = null;
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();

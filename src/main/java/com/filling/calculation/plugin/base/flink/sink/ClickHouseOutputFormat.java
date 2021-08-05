@@ -33,11 +33,11 @@ public class ClickHouseOutputFormat implements OutputFormat<Row> {
 
     public ClickHouseOutputFormat(String driverName, String dbUrl, String username, String password, String query, Integer batchSize, Integer batchIntervalMs, Integer maxRetries, JSONArray params) {
 
-        this.driverName = driverName;
-        this.dbUrl = dbUrl;
-        this.username = username;
-        this.password = password;
-        this.query = query;
+        ClickHouseOutputFormat.driverName = driverName;
+        ClickHouseOutputFormat.dbUrl = dbUrl;
+        ClickHouseOutputFormat.username = username;
+        ClickHouseOutputFormat.password = password;
+        ClickHouseOutputFormat.query = query;
         this.batchSize = batchSize;
         this.batchIntervalMs = batchIntervalMs;
         this.maxRetries = maxRetries;

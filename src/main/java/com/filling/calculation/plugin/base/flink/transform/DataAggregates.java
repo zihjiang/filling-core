@@ -23,6 +23,9 @@ import java.util.*;
 
 import static org.apache.flink.table.api.Expressions.*;
 
+/**
+ * @author zihjiang
+ */
 public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<Row, Row> {
 
     private JSONObject config;
@@ -35,6 +38,7 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
 
     private static Long ROWTIME_WATERMARK_FIELD_DELAY_MS;
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
         DataStream<Row> dataStreamForWT = dataStream.assignTimestampsAndWatermarks(new DefaultWaterMark(ROWTIME_WATERMARK_FIELD, ROWTIME_WATERMARK_FIELD_DELAY_MS));

@@ -26,6 +26,7 @@ public class FieldRemove implements FlinkBatchTransform<Row, Row>, FlinkStreamTr
     private static String FIELD_NAME = "field";
     private static String FIELD = null;
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();

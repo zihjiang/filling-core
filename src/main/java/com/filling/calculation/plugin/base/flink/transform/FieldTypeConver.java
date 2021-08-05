@@ -30,6 +30,7 @@ public class FieldTypeConver implements FlinkBatchTransform<Row, Row>, FlinkStre
 
     private static String TARGET_FIELD_TYPE = null;
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();

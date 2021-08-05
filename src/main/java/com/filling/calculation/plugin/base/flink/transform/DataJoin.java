@@ -21,6 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @program: calculation-core
+ * @description:
+ * @author: zihjiang
+ * @create: 2021-06-26 16:10
+ **/
 public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<Row, Row> {
 
 
@@ -45,6 +51,7 @@ public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTrans
     String WHERE_SUFFIX= ".where";
     String TYPE_SUFFIX= ".type";
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
@@ -87,8 +94,9 @@ public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTrans
     @Override
     public CheckResult checkConfig() {
         for (String table: JOIN_SOURCE_TABLE_NAME) {
-            if(!CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX).isSuccess())
+            if(!CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX).isSuccess()) {
                 return CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX);
+            }
         }
         return CheckConfigUtil.check(config,JOIN_SOURCE_TABLE_NAME_NAME);
     }

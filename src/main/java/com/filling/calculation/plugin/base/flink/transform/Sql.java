@@ -23,6 +23,7 @@ public class Sql implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<
 
     private static final String SQL = "sql";
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
         Table table = tableEnvironment.sqlQuery(sql);

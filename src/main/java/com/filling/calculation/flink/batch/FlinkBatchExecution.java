@@ -54,6 +54,8 @@ public class FlinkBatchExecution implements Execution<FlinkBatchSource, FlinkBat
                     case PROD:
                         // Do nothing
                         break;
+                    default:
+                        break;
                 }
 
 
@@ -83,6 +85,9 @@ public class FlinkBatchExecution implements Execution<FlinkBatchSource, FlinkBat
                         break;
                     case PROD:
                         // Do nothing
+                        break;
+                    default:
+
                         break;
                 }
             }
@@ -114,16 +119,17 @@ public class FlinkBatchExecution implements Execution<FlinkBatchSource, FlinkBat
 
     private  void registerResultTable(Plugin plugin, DataSet dataSet) {
         JSONObject config = plugin.getConfig();
-        if (config.containsKey(plugin.RESULT_TABLE_NAME)) {
-            String name = config.getString(plugin.RESULT_TABLE_NAME);
+        if (config.containsKey(Plugin.RESULT_TABLE_NAME)) {
+            String name = config.getString(Plugin.RESULT_TABLE_NAME);
             BatchTableEnvironment tableEnvironment = flinkEnvironment.getBatchTableEnvironment();
             if (!TableUtil.tableExists(tableEnvironment, name)) {
                 if (config.containsKey("field_name")) {
                     String fieldName = config.getString("field_name");
                     tableEnvironment.createTemporaryView(name, dataSet, fieldName);
                 } else {
-                    if(!Objects.isNull(dataSet))
+                    if(!Objects.isNull(dataSet)) {
                         tableEnvironment.createTemporaryView(name, dataSet);
+                    }
                 }
             }
         }
@@ -133,22 +139,25 @@ public class FlinkBatchExecution implements Execution<FlinkBatchSource, FlinkBat
 
     private DataSet fromSourceTable(Plugin plugin) {
         JSONObject config = plugin.getConfig();
-        if (config.containsKey(plugin.SOURCE_TABLE_NAME)) {
+        if (config.containsKey(Plugin.SOURCE_TABLE_NAME)) {
             BatchTableEnvironment tableEnvironment = flinkEnvironment.getBatchTableEnvironment();
-            Table table = tableEnvironment.from(config.getString(plugin.SOURCE_TABLE_NAME));
+            Table table = tableEnvironment.from(config.getString(Plugin.SOURCE_TABLE_NAME));
             return TableUtil.tableToDataSet(tableEnvironment, table);
         }
         return null;
     }
 
+    @Override
     public void setConfig(JSONObject config) {
         this.config = config;
     }
 
+    @Override
     public JSONObject getConfig() {
         return config;
     }
 
+    @Override
     public CheckResult checkConfig() {
         return new CheckResult(true, "");
     }

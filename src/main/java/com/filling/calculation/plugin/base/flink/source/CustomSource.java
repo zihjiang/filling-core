@@ -63,8 +63,8 @@ public class CustomSource implements FlinkBatchSource<Row> {
     public CheckResult checkConfig() {
         // 如果schema为json, 并且没有设置schema, 则用simple_data第一条作为schema
         if("json".equals(config.getString(SOURCE_FORMAT)) && !CheckConfigUtil.check(config, SIMPLE_DATA).isSuccess() && !CheckConfigUtil.check(config, SCHEMA).isSuccess() ) {
-            String simple_data = config.getString(SIMPLE_DATA);
-            config.put(SCHEMA, simple_data.split("\n")[0]);
+            String simpleData = config.getString(SIMPLE_DATA);
+            config.put(SCHEMA, simpleData.split("\n")[0]);
         } else if("text".equals(config.getString(SOURCE_FORMAT))) {
             return CheckConfigUtil.check(config,SOURCE_FORMAT, SIMPLE_DATA);
         }
@@ -110,13 +110,16 @@ public class CustomSource implements FlinkBatchSource<Row> {
 
     }
 
-    // 获取临时文件目录
+    /**
+     * 获取临时文件目录
+     * @return
+     */
     private Path getTempFile() {
 
         String tempPath =System.getProperty("java.io.tmpdir")+ File.separator + UUID.randomUUID();
 
-        String simple_data = config.getString(SIMPLE_DATA);
-        byte data[] = simple_data.getBytes();
+        String simpleData = config.getString(SIMPLE_DATA);
+        byte data[] = simpleData.getBytes();
         java.nio.file.Path p = Paths.get(tempPath);
 
         try (OutputStream out = new BufferedOutputStream(

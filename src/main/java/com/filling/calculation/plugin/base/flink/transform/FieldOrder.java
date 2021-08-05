@@ -26,6 +26,7 @@ public class FieldOrder implements FlinkBatchTransform<Row, Row>, FlinkStreamTra
     private static String FIELD_AND_SORT_NAME = "field_and_sort";
     private static String FIELD_AND_SORT = null;
 
+    @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
 
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
