@@ -12,16 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RandomDataGenInput implements DataGenerator<Row> {
+public class DataGenInput implements DataGenerator<Row> {
 
-    private List<Map<String, DataGenField>> fields = new ArrayList<>();
+    private List<Map<String, DataGenField>> fields;
 
-    public RandomDataGenInput(List<Map<String, DataGenField>> fields) {
-
-        System.out.println("structure fields.toString(): " + fields.toString());
+    public DataGenInput(List<Map<String, DataGenField>> fields) {
 
         this.fields = fields;
-
     }
     // 随机数据生成器对象
     RandomDataGenerator randomDataGenerator;
@@ -46,11 +43,14 @@ public class RandomDataGenInput implements DataGenerator<Row> {
                     key -> {
                         DataGenField dataGenField = JSONObject.parseObject(map.get(key).toString(), DataGenField.class);
                         switch (dataGenField.getType()){
-                            case "{\"instance\":\"192.168.1.13_cpu2_PP1A\",\"system\":\"PP1A\",\"metric\":\"cpu2\",\"host\":\"192.168.1.13\",\"value\":1.37,\"_time\":\"2021-06-01 23:19:00\"}":
+                            case "String":
                                 row.setField(key.toString(), randomDataGenerator.nextHexString(dataGenField.getLength()));
                                 break;
                             case "Int":
                                 row.setField(key.toString(), randomDataGenerator.nextInt(dataGenField.getMin(), dataGenField.getMax()));
+                                break;
+                            default:
+
                                 break;
                         }
                     }
