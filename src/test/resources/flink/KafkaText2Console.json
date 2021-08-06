@@ -1,0 +1,40 @@
+{
+  "env": {
+    "execution.parallelism": 1,
+    "execution.time-characteristic": "event-time",
+    "job.name": "wattttt"
+  },
+  "source": [
+    {
+      "plugin_name": "KafkaTableStream",
+      "consumer.group.id": "filling10",
+      "topics": ["zihjiangtext"],
+      "result_table_name": "KafkaTableStreamTable",
+      "format.type": "text",
+      "schema": "{\"instance\":\"192.168.1.13_cpu2_PP1A\",\"system\":\"PP1A\",\"metric\":\"cpu2\",\"host\":\"192.168.1.13\",\"value\":1,\"_time\":\"2021-06-01 23:19:00\"}",
+      "format.allow-comments": "true",
+      "format.ignore-parse-errors": "true",
+      "offset.reset": "earliest",
+      "consumer.bootstrap.servers": "192.168.1.218:9092",
+      "consumer.enable.auto.commit": "true",
+      "consumer.auto.commit.interval.ms": "1000",
+      "parallelism": 1,
+      "name": "mykafka"
+    }
+  ],
+  "transform": [
+    {
+      "result_table_name": "sql01",
+      "source_table_name": "KafkaTableStreamTable",
+      "plugin_name": "Sql",
+      "sql": "select REGEXP_EXTRACT(f0, '([^\t]*+\t){1}(?<uid>[^\t]++)(?:[^\t]*+\t){1}(?<id.orig_h>[^\t]++)(?:[^\t]*+\t){1}(?<id.orig_p>[^\t]++)(?:[^\t]*+\t){1}(?<id.resp_h>[^\t]++)(?:[^\t]*+\t){1}(?<id.resp_p>[^\t]++)(?:[^\t]*+\t){1}(?<proto>[^\t]++)(?:[^\t]*+\t){1}(?<service>[^\t]++)(?:[^\t]*+\\t){1}(?<duration>\\d+\\.\\d+\\s+\\d+)(?:[^\\t]*+\\t){1}(?<orig_bytes>[^\\t]++)(?:[^\\t]*+\\t){1}(?<resp_bytes>[^\\t]++)(?:[^\\t]*+\\t){1}(?<conn_state>[^\\t]++)(?:[^\\t]*+\\t){1}(?<local_orig>[^\\t]++)(?:[^\\t]*+\\t){1}(?<local_resp>[^\\t]++)(?:[^\\t]*+\\t){1}(?<missed_bytes>[^\\t]++)(?:[^\\t]*+\\t){1}(?<historyorig_pkts>[^\\t]++)(?:[^\\t]*+\\t){1}(?<orig_ip_bytes>[^\\t]++)(?:[^\\t]*+\\t){1}(?<resp_pkts>[^\\t]++)(?:[^\\t]*+\\t){1}(?<resp_ip_bytes>[^\\t]++)(?:[^\\t]*+\\t){1}(?<tunnel_parents>.+)\n', 0) from KafkaTableStreamTable"
+
+    }
+  ],
+  "sink": [
+    {
+      "source_table_name": "sql01",
+      "plugin_name": "ConsoleSink"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import com.filling.calculation.flink.util.SchemaUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.KafkaSourceBuilder;
@@ -22,15 +23,18 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.table.descriptors.FormatDescriptor;
 import org.apache.flink.types.Row;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class KafkaTableStream implements FlinkStreamSource<Row> {
 
     private JSONObject config;
 
     private Properties kafkaParams = new Properties();
-    private String topic;
+    private List<String> topics = new ArrayList<>();
     private Object schemaInfo;
     private String tableName;
     private final String consumerPrefix = "consumer.";
@@ -68,7 +72,20 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
 
     @Override
     public void prepare(FlinkEnvironment env) {
-        topic = config.getString(TOPICS);
+        String startsWith = "[";
+        if(config.getString(TOPICS) != null) {
+            // 查看是否以[开头
+            if(config.getString(TOPICS).startsWith(startsWith)) {
+                for (int i = 0; i < config.getJSONArray(TOPICS).size(); i++) {
+                    topics.add(config.getJSONArray(TOPICS).getString(i));
+                }
+                topics = config.getJSONArray(TOPICS).toJavaList(String.class);
+
+            } else {
+                topics.add(config.getString(TOPICS));
+            }
+        }
+
         PropertiesUtil.setProperties(config, kafkaParams, consumerPrefix, false);
         tableName = config.getString(RESULT_TABLE_NAME);
         format = config.getString(SOURCE_FORMAT);
@@ -79,11 +96,9 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
 
         KafkaSourceBuilder kafkaSourceBuilder = KafkaSource.<Row>builder()
                 .setBootstrapServers(BOOTSTRAP_SERVERS)
-                .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(getSchema())
                 .setProperties(kafkaParams)
-                .setTopics(topic);
-
+                .setTopics(topics);
         if (config.containsKey(OFFSET_RESET)) {
             String reset = config.getString(OFFSET_RESET);
             switch (reset) {
@@ -107,15 +122,20 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
         DeserializationSchema result = null;
         String schemaContent = config.getString(SCHEMA);
         schemaInfo = JSONObject.parse(schemaContent, Feature.OrderedField);
+
+        TypeInformation<Row> typeInfo = SchemaUtil.getTypeInformation((JSONObject) schemaInfo);
         switch (format) {
             case "csv":
                 //TODO
+                result = new CsvRowDeserializationSchema.Builder(typeInfo).setIgnoreParseErrors(true).build();
+                break;
 //                new CsvRowDeserializationSchema.Builder()
             case "json":
-
-                TypeInformation<Row> typeInfo = SchemaUtil.getTypeInformation((JSONObject) schemaInfo);
                 // 忽略转换错误引发的退出任务, 提升健壮性,
                 result = new JsonRowDeserializationSchema.Builder(typeInfo).ignoreParseErrors().build();
+            case "text":
+                result = new SimpleStringSchema();
+                break;
             default:
                 break;
         }

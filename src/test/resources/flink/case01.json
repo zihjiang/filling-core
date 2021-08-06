@@ -5,8 +5,8 @@
   "source": [
     {
       "plugin_name": "KafkaTableStream",
-      "consumer.group.id": "filling06",
-      "topics": "json",
+      "consumer.group.id": "filling10",
+      "topics": ["zihjiang"],
       "result_table_name": "KafkaTableStreamTable",
       "format.type": "json",
       "schema": "{\"instance\":\"192.168.1.13_cpu2_PP1A\",\"system\":\"PP1A\",\"metric\":\"cpu2\",\"host\":\"192.168.1.13\",\"value\":1,\"_time\":\"2021-06-01 23:19:00\"}",
@@ -14,13 +14,21 @@
       "format.ignore-parse-errors": "true",
       "offset.reset": "earliest",
       "consumer.bootstrap.servers": "192.168.1.218:9092",
-      "parallelism": 2,
+      "consumer.enable.auto.commit": "true",
+      "consumer.auto.commit.interval.ms": "1000",
+      "parallelism": 1,
       "name": "mykafka"
     }
   ],
   "transform": [
     {
       "source_table_name": "KafkaTableStreamTable",
+      "result_table_name": "sql01",
+      "plugin_name": "Sql",
+      "sql": "select * from KafkaTableStreamTable where instance not like '192.168.12.%'"
+    },
+    {
+      "source_table_name": "sql01",
       "result_table_name": "FieldOperation_time",
       "plugin_name": "FieldOperation",
       "target_field": "ts",
@@ -45,36 +53,8 @@
   ],
   "sink": [
     {
-      "source_table_name": "DataAggregates_01",
-      "plugin_name": "Elasticsearch",
-      "hosts": [
-        "192.168.100.17:9200"
-      ],
-      "index": "dataselector_result",
-      "parallelism": 1,
-      "name": "es01-source"
-    },
-    {
-      "source_table_name": "DataAggregates_01",
-      "plugin_name": "ClickHouseSink",
-      "driver": "ru.yandex.clickhouse.ClickHouseDriver",
-      "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",
-      "query": "insert into host_metric16(instance, _time, `value`) values(?,?,?)",
-      "batch_size": "2000",
-      "params": ["instance", "ts_watermark_start", "avg_value"],
-      "parallelism": 1,
-      "name": "mytest"
-    },
-    {
-      "source_table_name": "FieldOperation_time",
-      "plugin_name": "ClickHouseSink",
-      "driver": "ru.yandex.clickhouse.ClickHouseDriver",
-      "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",
-      "query": "insert into host_metric16_org(`instance`, `system`, `metric`, `host`, `_time`, `value`) values(?,?,?,?,?,?)",
-      "batch_size": "2000",
-      "params": ["instance", "system", "metric", "host", "_time", "value"],
-      "parallelism": 1,
-      "name": "mytest"
+      "source_table_name": "KafkaTableStreamTable",
+      "plugin_name": "ConsoleSink"
     }
   ]
 }

@@ -39,7 +39,7 @@
     </encoder>
 　　　</appender>
     <!-- This affects logging for both user code and Flink -->
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </root>
@@ -56,7 +56,7 @@
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </logger>
-    <logger name="org.apache.kafka" level="WARN">
+    <logger name="org.apache.kafka" level="INFO">
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </logger>
@@ -70,7 +70,7 @@
     </logger>
 
     <!-- Suppress the irrelevant (wrong) warnings from the Netty channel handler -->
-    <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="WARN">
+    <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="INFO">
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </logger>
