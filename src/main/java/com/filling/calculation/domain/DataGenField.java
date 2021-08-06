@@ -1,28 +1,32 @@
 package com.filling.calculation.domain;
 
+import com.filling.calculation.enums.GenDataKind;
+import com.filling.calculation.enums.GenDataType;
+
 /**
  * datagen参数实体类
+ * @author zihjiang
  */
 public class DataGenField {
 
-    private String Kind;
-    private String type;
+    private GenDataKind Kind;
+    private GenDataType type;
     private Integer min;
     private Integer max;
     private Integer length;
     private Integer start;
     private Integer end;
 
-    public String getKind() {
-        return "sequence".equals(Kind) ? "sequence" : "random";
+    public GenDataKind getKind() {
+        return GenDataKind.SEQUENCE.equals(Kind) ? GenDataKind.SEQUENCE : GenDataKind.RANDOM;
     }
 
-    public void setKind(String kind) {
+    public void setKind(GenDataKind kind) {
         Kind = kind;
     }
 
     public Integer getMin() {
-        return (min == null || min == 0) ? 1 : min;
+        return (min == null || min == 0) ? 0 : min;
     }
 
     public void setMin(Integer min) {
@@ -46,7 +50,7 @@ public class DataGenField {
     }
 
     public Integer getStart() {
-        return (start == null || start == 0) ? 1 : start;
+        return (start == null || start == 0) ? 0 : start;
     }
 
     public void setStart(Integer start) {
@@ -61,11 +65,11 @@ public class DataGenField {
         this.end = end;
     }
 
-    public String getType() {
+    public GenDataType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(GenDataType type) {
         this.type = type;
     }
 
