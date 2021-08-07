@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataGenInput implements DataGenerator<Row> {
 
@@ -33,7 +34,7 @@ public class DataGenInput implements DataGenerator<Row> {
     public void open(String s, FunctionInitializationContext functionInitializationContext, RuntimeContext runtimeContext) throws Exception {
         // 实例化生成器对象
         randomDataGenerator = new RandomDataGenerator();
-        counter = new HashMap<>();
+        counter = new ConcurrentHashMap<>();
         isNext = true;
     }
 
@@ -67,6 +68,8 @@ public class DataGenInput implements DataGenerator<Row> {
                                     num++;
                                     counter.put(key.toString(), num);
                                     row.setField(key.toString(), num);
+
+                                    isNext =  num >= dataGenField.getEnd() ? false : true;
                                 }
                                 break;
                             case LONG:

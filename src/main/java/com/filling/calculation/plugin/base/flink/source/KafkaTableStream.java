@@ -129,10 +129,10 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
                 //TODO
                 result = new CsvRowDeserializationSchema.Builder(typeInfo).setIgnoreParseErrors(true).build();
                 break;
-//                new CsvRowDeserializationSchema.Builder()
             case "json":
                 // 忽略转换错误引发的退出任务, 提升健壮性,
                 result = new JsonRowDeserializationSchema.Builder(typeInfo).ignoreParseErrors().build();
+                break;
             case "text":
                 result = new SimpleStringSchema();
                 break;
