@@ -39,6 +39,7 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
     private String tableName;
     private final String consumerPrefix = "consumer.";
     private String format;
+    private String format_field_delimiter;
 
     private static final String TOPICS = "topics";
     private static final String SCHEMA = "schema";
@@ -46,6 +47,7 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
     private static final String GROUP_ID = "group.id";
     private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String OFFSET_RESET = "offset.reset";
+    private static final String FORMAT_FIELD_DELIMITER = "format.field_delimiter";
 
     @Override
     public void setConfig(JSONObject config) {
@@ -80,7 +82,6 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
                     topics.add(config.getJSONArray(TOPICS).getString(i));
                 }
                 topics = config.getJSONArray(TOPICS).toJavaList(String.class);
-
             } else {
                 topics.add(config.getString(TOPICS));
             }
@@ -89,6 +90,7 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
         PropertiesUtil.setProperties(config, kafkaParams, consumerPrefix, false);
         tableName = config.getString(RESULT_TABLE_NAME);
         format = config.getString(SOURCE_FORMAT);
+        config.putIfAbsent(FORMAT_FIELD_DELIMITER, ",");
     }
 
     @Override
@@ -126,8 +128,8 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
         TypeInformation<Row> typeInfo = SchemaUtil.getTypeInformation((JSONObject) schemaInfo);
         switch (format) {
             case "csv":
-                //TODO
-                result = new CsvRowDeserializationSchema.Builder(typeInfo).setIgnoreParseErrors(true).build();
+                char delimiter =config.getString(FORMAT_FIELD_DELIMITER).charAt(0);
+                result = new CsvRowDeserializationSchema.Builder(typeInfo).setFieldDelimiter(delimiter).setIgnoreParseErrors(true).build();
                 break;
             case "json":
                 // 忽略转换错误引发的退出任务, 提升健壮性,

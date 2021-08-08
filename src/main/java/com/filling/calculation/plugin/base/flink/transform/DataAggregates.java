@@ -50,8 +50,10 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
          );
         Table result = table.filter(
                         $(ROWTIME_WATERMARK_FIELD).isNotNull()
-        ).window(Tumble.over(lit(ROWTIME_WATERMARK_FIELD_MS).millis()).on($(ROWTIME_WATERMARK_FIELD)).as(ROWTIME_WATERMARK_FIELD + "_watermark")) // define window
-                .groupBy( _(getGroupField(ROWTIME_WATERMARK_FIELD + "_watermark", SELECT_FIELDS))) // group by key and window
+                        // define window
+        ).window(Tumble.over(lit(ROWTIME_WATERMARK_FIELD_MS).millis()).on($(ROWTIME_WATERMARK_FIELD)).as(ROWTIME_WATERMARK_FIELD + "_watermark"))
+                // group by key and window
+                .groupBy( _(getGroupField(ROWTIME_WATERMARK_FIELD + "_watermark", SELECT_FIELDS)))
                 .select(
                         _(getSelectField(ROWTIME_WATERMARK_FIELD + "_watermark", SELECT_FIELDS))
                 );
