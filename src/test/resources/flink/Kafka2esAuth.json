@@ -20,7 +20,6 @@
       "consumer.bootstrap.servers": "10.10.14.46:9092",
       "rowtime.field": "ts",
       "watermark": 1000
-
     }
   ],
   "transform": [

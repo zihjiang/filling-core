@@ -38,7 +38,7 @@ public class CustomSourceBatchTest {
     public void testSourceCustom() throws Exception {
         configPath = "flink/batch/BatchCustom.json";
         String inputConfig = readFile(configPath);
-        String outputResult = readFile("flink/batch/result/CustomSourceBatch.json");
+        String outputResult = readFileNoSpace("flink/batch/result/CustomSourceBatch.json");
 
         List<PreviewResult> list = Filling.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
 
@@ -51,7 +51,7 @@ public class CustomSourceBatchTest {
     public void testSourceCustom2CK() throws Exception {
         configPath = "flink/batch/BatchCustom2CK.json";
         String inputConfig = readFile(configPath);
-        String outputResult = readFile("flink/batch/result/CustomSourceBatch.json");
+        String outputResult = readFileNoSpace("flink/batch/result/CustomSourceBatch.json");
 
         List<PreviewResult> list = Filling.entryPoint(inputConfig, Engine.FLINK, RunModel.DEV);
 
@@ -65,6 +65,17 @@ public class CustomSourceBatchTest {
         String result = "";
         try {
             result = Files.lines(Paths.get(rootPath + path), StandardCharsets.UTF_8).map(s -> s.replaceAll(" ", " ")).collect(Collectors.joining());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            return result;
+        }
+    }
+
+    private String readFileNoSpace(String path) {
+        String result = "";
+        try {
+            result = Files.lines(Paths.get(rootPath + path), StandardCharsets.UTF_8).map(s -> s.replaceAll(" ", " ")).collect(Collectors.joining()).replaceAll(" ","");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

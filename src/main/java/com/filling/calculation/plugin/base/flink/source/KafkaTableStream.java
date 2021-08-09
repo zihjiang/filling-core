@@ -20,6 +20,8 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.formats.csv.CsvRowDeserializationSchema;
 import org.apache.flink.formats.json.JsonRowDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.table.descriptors.FormatDescriptor;
 import org.apache.flink.types.Row;
 
@@ -96,28 +98,39 @@ public class KafkaTableStream implements FlinkStreamSource<Row> {
     @Override
     public DataStream<Row> getStreamData(FlinkEnvironment env) {
 
-        KafkaSourceBuilder kafkaSourceBuilder = KafkaSource.<Row>builder()
-                .setBootstrapServers(BOOTSTRAP_SERVERS)
-                .setValueOnlyDeserializer(getSchema())
-                .setProperties(kafkaParams)
-                .setTopics(topics);
+
+        FlinkKafkaConsumer<Row> kafkaConsumer = new FlinkKafkaConsumer<>(
+                topics,
+                getSchema(),
+                kafkaParams);
+
         if (config.containsKey(OFFSET_RESET)) {
             String reset = config.getString(OFFSET_RESET);
             switch (reset) {
                 case "latest":
-                    kafkaSourceBuilder.setStartingOffsets(OffsetsInitializer.latest());
+                    kafkaConsumer.setStartFromLatest();
                     break;
                 case "earliest":
-                    kafkaSourceBuilder.setStartingOffsets(OffsetsInitializer.earliest());
+                    kafkaConsumer.setStartFromEarliest();
+                    break;
+                case "fromTimestamp":
+                    kafkaConsumer.setStartFromTimestamp(1);
+                    break;
+                case "fromGroupOffsets":
+                    kafkaConsumer.setStartFromGroupOffsets();
                     break;
                 default:
-//                    kafkaSourceBuilder.setStartingOffsets(OffsetsInitializer.committedOffsets());
-                    // TODO
+                    System.out.println("不识别参数offset.reset=" + reset + "参数应该为: latest, earliest, fromTimestamp, fromGroupOffsets, 默认为 fromGroupOffsets");
+                    kafkaConsumer.setStartFromGroupOffsets();
                     break;
             }
         }
+        kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
 
-        return env.getStreamExecutionEnvironment().fromSource(kafkaSourceBuilder.build(), WatermarkStrategy.noWatermarks(), tableName).setParallelism(getParallelism()).name(getName());
+        DataStream<Row> stream = env.getStreamExecutionEnvironment()
+                .addSource(kafkaConsumer).setParallelism(getParallelism()).name(getName());
+
+        return stream;
     }
 
     private DeserializationSchema getSchema() {

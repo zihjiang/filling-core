@@ -103,8 +103,6 @@ public class FlinkEnvironment implements RuntimeEnv {
 
     private void createStreamEnvironment() {
         environment = StreamExecutionEnvironment.getExecutionEnvironment();
-        setTimeCharacteristic();
-
         setCheckpoint();
 
         EnvironmentUtil.setRestartStrategy(config,environment.getConfig());
@@ -145,26 +143,6 @@ public class FlinkEnvironment implements RuntimeEnv {
 
     private void createBatchTableEnvironment() {
         batchTableEnvironment = BatchTableEnvironment.create(batchEnvironment);
-    }
-
-    private void setTimeCharacteristic() {
-        if (config.containsKey(ConfigKeyName.TIME_CHARACTERISTIC)) {
-            String timeType = config.getString(ConfigKeyName.TIME_CHARACTERISTIC);
-            switch (timeType.toLowerCase()) {
-                case "event-time":
-                    environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-                    break;
-                case "ingestion-time":
-                    environment.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
-                    break;
-                case "processing-time":
-                    environment.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
-                    break;
-                default:
-                    LOG.warn("set time-characteristic failed, unknown time-characteristic [{}],only support event-time,ingestion-time,processing-time", timeType);
-                    break;
-            }
-        }
     }
 
 
