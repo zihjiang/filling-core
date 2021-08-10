@@ -35,14 +35,6 @@ public class TableUtil {
          return tableEnvironment.toDataSet(table,table.getSchema().toRowType());
     }
 
-    public static void  dataStreamToTable(StreamTableEnvironment tableEnvironment,String tableName,DataStream<Row> dataStream){
-        tableEnvironment.registerDataStream(tableName,dataStream);
-    }
-
-    public static void dataSetToTable(BatchTableEnvironment tableEnvironment,String tableName,DataSet<Row> dataSet){
-        tableEnvironment.createTemporaryView(tableName,dataSet);
-    }
-
     public static boolean tableExists(TableEnvironment tableEnvironment, String name){
         String currentCatalog = tableEnvironment.getCurrentCatalog();
         Catalog catalog = tableEnvironment.getCatalog(currentCatalog).get();

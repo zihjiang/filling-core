@@ -26,7 +26,7 @@ public class Sql implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<
     @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
-        Table table = tableEnvironment.sqlQuery(sql);
+        Table table = tableEnvironment.sqlQuery(sql.replaceAll("\\{" +SOURCE_TABLE_NAME+ "}", config.getString(SOURCE_TABLE_NAME)));
         return TableUtil.tableToDataStream(tableEnvironment, table, false);
     }
 
@@ -55,6 +55,6 @@ public class Sql implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<
 
     @Override
     public void prepare(FlinkEnvironment env) {
-        sql = config.getString("sql");
+        sql = config.getString(SQL);
     }
 }
