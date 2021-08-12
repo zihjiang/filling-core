@@ -30,7 +30,9 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
 
     private JSONObject config;
 
-    private static List<String> SELECT_FIELDS= null;
+    private static List<String> SELECT_FIELDS= new ArrayList<>();
+
+    private static List<String> CUSTOM_FIELDS= new ArrayList<>();
 
     private static String ROWTIME_WATERMARK_FIELD;
 
@@ -93,12 +95,16 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
 
     @Override
     public void prepare(FlinkEnvironment env) {
+
         SELECT_FIELDS = config.getObject("group.fields", List.class);
+
+        if(config.getString("custom.field") != null ) {
+            CUSTOM_FIELDS = config.getObject("custom.field", List.class);
+        }
 
         ROWTIME_WATERMARK_FIELD = config.getString("rowtime.watermark.field");
         ROWTIME_WATERMARK_FIELD_MS = config.getLong("rowtime.watermark.tumble.ms");
         ROWTIME_WATERMARK_FIELD_DELAY_MS = config.getLong("rowtime.watermark.tumble.delay.ms");
-
     }
 
     /**
@@ -156,7 +162,7 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
             }
         }
 
-        for (Object obj: config.getObject("custom.field", List.class)) {
+        for (Object obj: CUSTOM_FIELDS) {
             String str = obj.toString();
             sb.append(config.getString("custom.field."+ str +".script"));
             sb.append(" as ");
@@ -167,7 +173,7 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
         sb.append(watermarkFieldName + ".start as " + watermarkFieldName + "_start, ");
         sb.append(watermarkFieldName + ".end as " + watermarkFieldName + "_end");
 
-        System.out.println("getSelectField: " + sb.toString());
+        System.out.println("getSelectField: " + sb);
         return sb.toString();
     }
 
@@ -176,7 +182,6 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
         // 删除watermark字段
         columns.removeIf(s -> s.contains(excludeFiledName));
         //
-//        columns = columns.stream().map(d -> "`"+ d +"`").collect(Collectors.toList());
         return columns;
     }
 }
