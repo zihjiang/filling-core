@@ -39,4 +39,19 @@ public class CaseTest {
         Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
+    @Test
+    public void testCase03() throws Exception {
+        configPath = "flink/case03.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
+    @Test
+    public void testCase04() throws Exception {
+        configPath = "flink/case04.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
 }
