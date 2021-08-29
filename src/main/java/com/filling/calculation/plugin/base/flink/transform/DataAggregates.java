@@ -149,8 +149,21 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
             sb.append(field_name);
             sb.append(", ");
 
-            for(int i1=0; i1 < funcs.size(); i1++) {
-                String fun = funcs.get(i1).toString();
+            // 如果没有group.*.function参数,
+            if(funcs != null) {
+                for(int i1=0; i1 < funcs.size(); i1++) {
+                    String fun = funcs.get(i1).toString();
+                    sb.append(field_name);
+                    sb.append(".");
+                    sb.append(fun);
+                    sb.append(" as ");
+                    sb.append(field_name);
+                    sb.append("_");
+                    sb.append(fun);
+                    sb.append(",");
+                }
+            } else {
+                String fun = "count";
                 sb.append(field_name);
                 sb.append(".");
                 sb.append(fun);
@@ -160,6 +173,7 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
                 sb.append(fun);
                 sb.append(",");
             }
+
         }
 
         for (Object obj: CUSTOM_FIELDS) {
