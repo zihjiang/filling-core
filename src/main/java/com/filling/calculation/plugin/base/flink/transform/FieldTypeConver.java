@@ -49,16 +49,16 @@ public class FieldTypeConver implements FlinkBatchTransform<Row, Row>, FlinkStre
 
         String sql;
         // 判断参数是否为数组
-        if(SOURCE_FIELD.startsWith("[")) {
+        if (SOURCE_FIELD.startsWith("[")) {
             JSONArray _field = JSONArray.parseArray(SOURCE_FIELD);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < _field.size(); i++) {
                 sb.append("CAST(");
-                sb.append(_field.getString(i));
+                sb.append("`" + _field.getString(i) + "`");
                 sb.append(" as ");
                 sb.append(TARGET_FIELD_TYPE);
                 sb.append(") as ");
-                sb.append(_field.getString(i));
+                sb.append("`" + _field.getString(i) + "`");
 
                 if (i >= (_field.size() - 1)) {
                     sb.append(" ");
@@ -67,16 +67,14 @@ public class FieldTypeConver implements FlinkBatchTransform<Row, Row>, FlinkStre
                 }
             }
 
-            sql = "select  *," + sb.toString() + " from {table_name}"
-                .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
+            sql = "select  " + sb + ",* from {table_name}"
+                    .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
         } else {
-            sql = "select *," + "CAST(" + SOURCE_FIELD + " as " + TARGET_FIELD_TYPE + ")" + " from {table_name}"
-                .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
+            sql = "select " + "CAST(" + SOURCE_FIELD + " as " + TARGET_FIELD_TYPE + ")" + ", * from {table_name}"
+                    .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
         }
 
         Table table = tableEnvironment.sqlQuery(sql);
-
-
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, table) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, table, false);
     }
 
@@ -93,7 +91,7 @@ public class FieldTypeConver implements FlinkBatchTransform<Row, Row>, FlinkStre
 
     @Override
     public CheckResult checkConfig() {
-        return CheckConfigUtil.check(config,SOURCE_FIELD_NAME, SOURCE_FIELD_NAME);
+        return CheckConfigUtil.check(config, SOURCE_FIELD_NAME, SOURCE_FIELD_NAME);
     }
 
     @Override
