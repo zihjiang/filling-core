@@ -14,6 +14,7 @@ import com.filling.calculation.flink.util.Engine;
 import com.filling.calculation.flink.util.PluginType;
 import com.filling.calculation.plugin.Plugin;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -37,7 +38,6 @@ public class Filling {
     }
 
 
-
     private static void showFatalError(Throwable throwable) {
         System.out.println(
                 "\n\n===============================================================================\n\n");
@@ -59,22 +59,25 @@ public class Filling {
     public static void main(String[] args) throws Exception {
 
 
-        if(args.length < 1) {
+        if (args.length < 1) {
             System.out.println("文件路径是必须的");
         } else {
             RunModel runModel;
 
-            if(args.length == 2) {
+            if (args.length == 2) {
                 runModel = RunModel.valueOf(args[1]);
             } else {
                 runModel = RunModel.DEV;
             }
 
-            final Base64.Decoder decoder = Base64.getDecoder();
+            String jsonStr;
+            if (args[0].startsWith("/")) {
+                jsonStr = Files.lines(Paths.get(args[0]), StandardCharsets.UTF_8).collect(Collectors.joining());
+            } else {
+                final Base64.Decoder decoder = Base64.getDecoder();
+                jsonStr = new String(decoder.decode(args[0]), "UTF-8");
+            }
 
-//            String jsonStr = new String(decoder.decode(args[0]), "UTF-8");
-
-            String jsonStr = Files.lines(Paths.get(args[0]), StandardCharsets.UTF_8).collect(Collectors.joining());
 
             JSONObject jsonObject = JSONObject.parseObject(jsonStr);
             System.out.println("json: " + jsonObject.toJSONString());
