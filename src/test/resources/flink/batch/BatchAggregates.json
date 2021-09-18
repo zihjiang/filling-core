@@ -36,7 +36,7 @@
       ],
       "group.workgroup.function": ["count"],
       "group.sysid.function": ["count"],
-      "custom.field": ["max_trans_time", "min_trans_time", "dus"],
+      "custom.fields": ["max_trans_time", "min_trans_time", "dus"],
       "custom.field.max_trans_time.script": "max(trans_time)",
       "custom.field.min_trans_time.script": "min(trans_time)",
       "custom.field.dus.script": "(max(trans_time) - min(trans_time))"

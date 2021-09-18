@@ -45,7 +45,7 @@
       "group.DtgrmRl.function": ["count"],
       "group.ReturnCode.function": ["count"],
       "group.TranCode.function": ["count"],
-      "custom.field": ["rtime"],
+      "custom.fields": ["rtime"],
       "custom.field.rtime.script": "max(tss)"
     },
     {

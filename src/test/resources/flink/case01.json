@@ -45,7 +45,7 @@
         "instance"
       ],
       "group.instance.function": ["count"],
-      "custom.field": ["max_value", "min_value", "avg_value"],
+      "custom.fields": ["max_value", "min_value", "avg_value"],
       "custom.field.max_value.script": "max(value)",
       "custom.field.min_value.script": "min(value)",
       "custom.field.avg_value.script": "avg(value)"

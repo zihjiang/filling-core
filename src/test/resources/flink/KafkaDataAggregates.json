@@ -30,7 +30,7 @@
       "group.host.function": ["count"],
       "group.source.function": ["count"],
       "group.MetricsName.function": ["count"],
-      "custom.field": ["max_value", "min_value"],
+      "custom.fields": ["max_value", "min_value"],
       "custom.field.max_value.script": "max(value)",
       "custom.field.min_value.script": "min(value)"
     }
