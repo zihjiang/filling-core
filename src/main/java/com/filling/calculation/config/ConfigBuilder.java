@@ -22,7 +22,7 @@ public class ConfigBuilder {
     private Engine engine;
     private ConfigPackage configPackage = new ConfigPackage(Engine.FLINK.getEngine());
     private JSONObject config;
-    private boolean streaming;
+    private boolean batch;
     private JSONObject envConfig;
     private RuntimeEnv env;
     private String stringConfig;
@@ -59,9 +59,9 @@ public class ConfigBuilder {
         return env;
     }
 
-    private boolean checkIsStreaming() {
+    private boolean checkIsBarch() {
         JSONArray sourceConfigList = config.getJSONArray((PluginType.SOURCE.getType()));
-        return sourceConfigList.getJSONObject(0).getString(PLUGIN_NAME_KEY).toLowerCase().endsWith("stream");
+        return sourceConfigList.getJSONObject(0).getString(PLUGIN_NAME_KEY).toLowerCase().endsWith("batch");
     }
 
     /**
@@ -141,11 +141,10 @@ public class ConfigBuilder {
 
     private RuntimeEnv createEnv() {
         envConfig = config.getJSONObject("env");
-        streaming = checkIsStreaming();
-        RuntimeEnv env = null;
+        batch = checkIsBarch();
         env = new FlinkEnvironment();
-        ((FlinkEnvironment) env).setConfig(envConfig);
-        env.prepare(streaming);
+        env.setConfig(envConfig);
+        env.prepare(!batch);
         return env;
     }
 
@@ -165,10 +164,10 @@ public class ConfigBuilder {
                 break;
             case FLINK:
                 FlinkEnvironment flinkEnvironment = (FlinkEnvironment) env;
-                if (streaming) {
-                    execution = new FlinkStreamExecution(flinkEnvironment);
-                } else {
+                if (batch) {
                     execution = new FlinkBatchExecution(flinkEnvironment);
+                } else {
+                    execution = new FlinkStreamExecution(flinkEnvironment);
                 }
                 break;
             default:
