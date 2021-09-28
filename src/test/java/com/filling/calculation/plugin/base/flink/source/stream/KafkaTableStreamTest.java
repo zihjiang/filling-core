@@ -129,4 +129,30 @@ public class KafkaTableStreamTest {
         Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
+    @Test
+    public void testkafkaParsing2Console() throws Exception {
+
+        configPath = "flink/kafkaParsing2Console.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+    @Test
+    public void testKafka2FlattenerConsole() throws Exception {
+
+        configPath = "flink/Kafka2FattenerConsole.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
+    @Test
+    public void testFilling() throws Exception {
+
+        configPath = "flink/filling.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
 }

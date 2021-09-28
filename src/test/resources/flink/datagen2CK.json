@@ -6,8 +6,8 @@
   },
   "source": [
     {
-      "plugin_name": "DataGenTableStream",
-      "result_table_name": "dataGenTableStreamTable",
+      "plugin_name": "dataGenSource",
+      "result_table_name": "dataGenSourceTable",
       "schema": "{\"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":\"49\",\"_time\":1626571020000}",
       "parallelism": 10,
       "name": "mykafka"
@@ -17,7 +17,7 @@
   ],
   "sink": [
     {
-      "source_table_name": "dataGenTableStreamTable",
+      "source_table_name": "dataGenSourceTable",
       "plugin_name": "ClickHouseSink",
       "driver": "ru.yandex.clickhouse.ClickHouseDriver",
       "url": "jdbc:clickhouse://192.168.100.15:8123/aiops",

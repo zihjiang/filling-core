@@ -6,8 +6,8 @@
   },
   "source": [
     {
-      "plugin_name": "DataGenTableStream",
-      "result_table_name": "dataGenTableStreamTable",
+      "plugin_name": "dataGenSource",
+      "result_table_name": "dataGenSourceTable",
       "schema": "{\"id\":1, \"host\":\"192.168.1.103\",\"source\":\"datasource\",\"MetricsName\":\"cpu\",\"value\":49}",
       "rows-per-second": 10000,
       "number-of-rows": 100000,
@@ -51,7 +51,7 @@
   ],
   "transform": [
     {
-      "source_table_name": "dataGenTableStreamTable",
+      "source_table_name": "dataGenSourceTable",
       "result_table_name": "FieldOperation_time",
       "plugin_name": "FieldOperation",
       "target_field": "_time",
