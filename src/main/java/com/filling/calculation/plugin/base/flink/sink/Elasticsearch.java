@@ -9,6 +9,7 @@ import com.filling.calculation.flink.stream.FlinkStreamSink;
 import com.filling.calculation.utils.StringTemplate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.operators.DataSink;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -105,9 +106,9 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
         List<String> fieldNames = Arrays.asList(rowTypeInfo.getFieldNames());
 
 
-        List<String> fieldTypes = new ArrayList<>();
+        List<TypeInformation> fieldTypes = new ArrayList<>();
         for (int i = 0; i < rowTypeInfo.getFieldTypes().length; i++) {
-            fieldTypes.add(rowTypeInfo.getFieldTypes()[i].toString());
+            fieldTypes.add(rowTypeInfo.getFieldTypes()[i]);
         }
 
 

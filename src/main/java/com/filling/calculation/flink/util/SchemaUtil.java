@@ -9,10 +9,8 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.scala.typeutils.Types;
 import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.descriptors.*;
-import org.apache.flink.table.expressions.Md5;
 import org.apache.flink.table.utils.TypeStringUtils;
 import org.apache.flink.types.Row;
-import sun.security.provider.MD5;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -177,9 +175,15 @@ public class SchemaUtil {
                 informations[i] = Types.JAVA_BIG_DEC();
             } else if (value instanceof JSONObject) {
                 informations[i] = getTypeInformation((JSONObject) value);
-            } else if (value instanceof JSONArray) {
-                JSONObject demo = ((JSONArray) value).getJSONObject(0);
-                informations[i] = ObjectArrayTypeInfo.getInfoFor(Row[].class, getTypeInformation(demo));
+            }else if (value instanceof JSONArray) {
+                Object object = ((JSONArray) value).getObject(0, Object.class);
+                // 判断, 如果是json
+                if(object instanceof JSONObject) {
+                    JSONObject demo = ((JSONArray) value).getJSONObject(0);
+                    informations[i] = ObjectArrayTypeInfo.getInfoFor(Row[].class, getTypeInformation(demo));
+                } else {
+                    informations[i] = ObjectArrayTypeInfo.getInfoFor(Types.STRING());
+                }
             }
             i++;
         }

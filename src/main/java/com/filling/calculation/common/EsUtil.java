@@ -6,10 +6,7 @@ import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zihjiang
@@ -80,6 +77,10 @@ public class EsUtil {
 
 
                 }
+            } else {
+                // 格式为[1,2,3 ]纯数组时
+//                currMap.put(row.getField(key));
+                System.out.println("key: " + key);
             }
 
         }
@@ -104,24 +105,32 @@ public class EsUtil {
     }
 
     static List rowArrayToJsonMap(Object col) {
-
         List result = new ArrayList();
-        System.out.println("col.getClass(): " + col.getClass().getTypeName());
-        Row[] rows = (Row[]) col;
-        for (Row row : rows) {
-            for (String fieldName : row.getFieldNames(true)) {
-                if( "org.apache.flink.api.java.typeutils.RowTypeInfo".equals(row.getFieldAs(fieldName).getClass().getTypeName()) ) {
-                    Map<String, Object> _result = new HashMap<>();
-                    _result.put(fieldName, rowObjectToJsonMap(row.getFieldAs(fieldName)));
-                    result.add(_result);
-                } else if("org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo".equals(row.getFieldAs(fieldName).getClass().getTypeName())) {
-                    List<Map<String, Object>> _result = rowArrayToJsonMap(row.getFieldAs(fieldName));
-                    result.addAll(_result);
-                } else {
-                    result.add(row.getField(fieldName));
+        if(col instanceof String[]) {
+            String[] strings = (String[]) col;
+//            result.add(strings);
+            result = Arrays.asList(strings);
+        } else {
+            Row[] rows = (Row[]) col;
+            for (Row row : rows) {
+                for (String fieldName : row.getFieldNames(true)) {
+                    System.out.println("row.getFieldAs(fieldName).getClass().getTypeName()): " + row.getFieldAs(fieldName).getClass().getTypeName());
+                    if( "org.apache.flink.api.java.typeutils.RowTypeInfo".equals(row.getFieldAs(fieldName).getClass().getTypeName()) ) {
+                        Map<String, Object> _result = new HashMap<>();
+                        _result.put(fieldName, rowObjectToJsonMap(row.getFieldAs(fieldName)));
+                        result.add(_result);
+                    } else if("org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo".equals(row.getFieldAs(fieldName).getClass().getTypeName())) {
+                        List<Map<String, Object>> _result = rowArrayToJsonMap(row.getFieldAs(fieldName));
+                        result.addAll(_result);
+                    } else {
+                        Map<String, Object> _result = new HashMap<>();
+                        _result.put(fieldName, row.getField(fieldName));
+                        result.add(_result);
+                    }
                 }
             }
         }
+
 
         return result;
     }
