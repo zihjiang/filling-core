@@ -44,42 +44,6 @@ public class SchemaUtil {
         }
     }
 
-    public static FormatDescriptor setFormat(String format, JSONObject config) throws Exception {
-        FormatDescriptor formatDescriptor = null;
-        switch (format.toLowerCase().trim()) {
-            case "json":
-                formatDescriptor = new Json().failOnMissingField(false).deriveSchema();
-                break;
-            case "csv":
-                Csv csv = new Csv().deriveSchema();
-                Field interPro = csv.getClass().getDeclaredField("internalProperties");
-                interPro.setAccessible(true);
-                Object desc = interPro.get(csv);
-                Class<DescriptorProperties> descCls = DescriptorProperties.class;
-                Method putMethod = descCls.getDeclaredMethod("put", String.class, String.class);
-                putMethod.setAccessible(true);
-                for (Map.Entry<String, Object> entry : config.entrySet()) {
-                    String key = entry.getKey();
-                    if (key.startsWith("format.") && ! StringUtils.equals(key, "format.type")) {
-                        String value = config.getString(key);
-                        putMethod.invoke(desc, key, value);
-                    }
-                }
-                formatDescriptor = csv;
-                break;
-            case "orc":
-                break;
-            case "avro":
-                formatDescriptor = new Avro().avroSchema(config.getString("schema"));
-                break;
-            case "parquet":
-                break;
-            default:
-                break;
-        }
-        return formatDescriptor;
-    }
-
     private static void getJsonSchema(Schema schema, JSONObject json) {
 
         for (Map.Entry<String, Object> entry : json.entrySet()) {
@@ -156,6 +120,11 @@ public class SchemaUtil {
         }
     }
 
+    /**
+     * 根据JSON, 获取RowTypeInfo
+     * @param json json格式的数据
+     * @return RowTypeInfo
+     */
     public static RowTypeInfo getTypeInformation(JSONObject json) {
         int size = json.size();
         String[] fields = new String[size];
@@ -182,6 +151,7 @@ public class SchemaUtil {
                     JSONObject demo = ((JSONArray) value).getJSONObject(0);
                     informations[i] = ObjectArrayTypeInfo.getInfoFor(Row[].class, getTypeInformation(demo));
                 } else {
+                    // 数组形式, 默认都是striing
                     informations[i] = ObjectArrayTypeInfo.getInfoFor(Types.STRING());
                 }
             }
@@ -189,6 +159,8 @@ public class SchemaUtil {
         }
         return new RowTypeInfo(informations, fields);
     }
+
+
 
     public static String getUniqueTableName() {
         return "_tmp_" + UUID.randomUUID().toString().replaceAll("-", "_");

@@ -9,6 +9,7 @@ import com.filling.calculation.flink.stream.FlinkStreamSink;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.io.FileOutputFormat;
 import org.apache.flink.api.common.serialization.Encoder;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.io.TextOutputFormat;
 import org.apache.flink.api.java.operators.DataSink;
@@ -18,6 +19,7 @@ import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +97,9 @@ public class FileSink implements FlinkBatchSink<Row, Row>, FlinkStreamSink<Row, 
                     out.println(element);
                 })
                 .build();
+
+
+
         return dataStream.addSink(sink).setParallelism(getParallelism()).name(getName());
     }
 

@@ -14,34 +14,13 @@ import java.util.*;
  */
 public class EsUtil {
 
-//    public static Map<String, Object> rowToJsonMap(Row row, List<String> fields, List<TypeInformation> types) {
-//        Preconditions.checkArgument(row.getArity() == fields.size());
-//        Map<String,Object> jsonMap = Maps.newHashMap();
-//        int i = 0;
-//        for(; i < fields.size(); ++i) {
-//            String field = fields.get(i);
-//            String[] parts = field.split("\\.");
-//            Map<String, Object> currMap = jsonMap;
-//            for(int j = 0; j < parts.length - 1; ++j) {
-//                String key = parts[j];
-//                if(currMap.get(key) == null) {
-//                    HashMap<String, Object> hashMap = Maps.newHashMap();
-//                    currMap.put(key, hashMap);
-//                }
-//                currMap = (Map<String, Object>) currMap.get(key);
-//            }
-//            String key = parts[parts.length - 1];
-//            Object col = row.getField(i);
-//            if(col != null) {
-//                Object value = DtStringUtil.col2string(col, types.get(i));
-//                currMap.put(key, value);
-//            }
-//
-//        }
-//
-//        return jsonMap;
-//    }
-
+    /**
+     * row数据转json map
+     * @param row row为具有field名称的row
+     * @param fields 字段名称
+     * @param types 字段类型, 和字段名称对应
+     * @return
+     */
     public static Map<String, Object> rowToJsonMap(Row row, List<String> fields, List<TypeInformation> types) {
         Preconditions.checkArgument(row.getArity() == fields.size());
         Map<String, Object> jsonMap = Maps.newHashMap();
@@ -61,11 +40,11 @@ public class EsUtil {
             String key = parts[parts.length - 1];
             Object col = row.getField(i);
             if (col != null) {
-                System.out.println("types.get(i).getClass().getTypeName(): " + types.get(i).getClass().getTypeName());
                 if (types.get(i).isBasicType()) {
                     Object value = DtStringUtil.col2string(col, types.get(i).toString());
                     currMap.put(key, value);
                 } else {
+                    // 判断类型,
                     switch (types.get(i).getClass().getTypeName()) {
                         case "org.apache.flink.api.java.typeutils.RowTypeInfo":
                             currMap.put(key, rowObjectToJsonMap(col));
@@ -78,9 +57,7 @@ public class EsUtil {
 
                 }
             } else {
-                // 格式为[1,2,3 ]纯数组时
-//                currMap.put(row.getField(key));
-                System.out.println("key: " + key);
+
             }
 
         }
@@ -108,7 +85,6 @@ public class EsUtil {
         List result = new ArrayList();
         if(col instanceof String[]) {
             String[] strings = (String[]) col;
-//            result.add(strings);
             result = Arrays.asList(strings);
         } else {
             Row[] rows = (Row[]) col;

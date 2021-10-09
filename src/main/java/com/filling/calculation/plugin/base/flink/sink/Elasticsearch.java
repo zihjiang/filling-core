@@ -39,6 +39,7 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
 
     private JSONObject config;
     private String indexName;
+    private String INDEXIDFIELD;
 
     private final static String PREFIX = "es.";
 
@@ -67,23 +68,15 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
 
     @Override
     public void prepare(FlinkEnvironment env) {
-//        JSONObject defaultConfig = ConfigFactory.parseMap(new HashMap<String, String>(2) {
-//            {
-//                put("index", "waterdrop");
-//                put("index_type", "log");
-//                put("index_time_format", "yyyy.MM.dd");
-//            }
-//        });
-//        config = config.withFallback(defaultConfig);
-        config.putIfAbsent("index", "waterdrop");
+        config.putIfAbsent("index", "filling");
         config.putIfAbsent("index_type", "_doc");
         config.putIfAbsent("index_time_format", "yyyy.MM.dd");
+        INDEXIDFIELD = config.getString("index_id_field");
 
         config.putIfAbsent(PREFIX + "bulk.flush.max.actions", 1000);
         config.putIfAbsent(PREFIX + "bulk.flush.max.size.mb", 2);
         config.putIfAbsent(PREFIX + "bulk.flush.interval.ms", 1000);
         config.putIfAbsent(PREFIX + "bulk.flush.backoff.enable", true);
-//        config.putIfAbsent("bulk.flush.backoff.type", ElasticsearchSinkBase.FlushBackoffType.CONSTANT);
         config.putIfAbsent(PREFIX + "bulk.flush.backoff.delay", 50);
         config.putIfAbsent(PREFIX + "bulk.flush.backoff.retries", 8);
 
@@ -114,24 +107,26 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
 
         indexName = StringTemplate.substitute(config.getString("index"), config.getString("index_time_format"));
 
-        ElasticsearchSink.Builder<Row> esSinkBuilder = new ElasticsearchSink.Builder<>(
-                httpHosts,
-                new ElasticsearchSinkFunction<Row>() {
-                    public IndexRequest createIndexRequest(Row element) {
-                        Map<String, Object> dataMap = EsUtil.rowToJsonMap(element, fieldNames, fieldTypes);
+        ElasticsearchSink.Builder<Row> esSinkBuilder = new ElasticsearchSink.Builder<>(httpHosts, new ElasticsearchSinkFunction<Row>() {
+            public IndexRequest createIndexRequest(Row element) {
+                Map<String, Object> dataMap = EsUtil.rowToJsonMap(element, fieldNames, fieldTypes);
 
-                        return Requests.indexRequest()
-                                .index(indexName)
-                                .type(config.getString("index_type"))
-                                .source(dataMap);
-                    }
-
-                    @Override
-                    public void process(Row element, RuntimeContext ctx, RequestIndexer indexer) {
-                        indexer.add(createIndexRequest(element));
-                    }
+                IndexRequest indexRequest = Requests.indexRequest()
+                        .index(indexName)
+                        .type(config.getString("index_type"))
+                        .source(dataMap);
+                // 判断id_field是否为空, 如果不为空, 则加上id
+                if(StringUtils.isNotEmpty(INDEXIDFIELD) && dataMap.get(INDEXIDFIELD) != null) {
+                    indexRequest.id(dataMap.get(INDEXIDFIELD).toString());
                 }
-        );
+                return indexRequest;
+            }
+
+            @Override
+            public void process(Row element, RuntimeContext ctx, RequestIndexer indexer) {
+                indexer.add(createIndexRequest(element));
+            }
+        });
 
 
         // configuration for the bulk requests; this instructs the sink to emit after every element, otherwise they would be buffered
@@ -141,7 +136,6 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
         esSinkBuilder.setBulkFlushBackoff(config.getBoolean(PREFIX + "bulk.flush.backoff.enable"));
         esSinkBuilder.setBulkFlushBackoffDelay(config.getLong(PREFIX + "bulk.flush.backoff.delay"));
         esSinkBuilder.setBulkFlushBackoffRetries(config.getInteger(PREFIX + "bulk.flush.backoff.retries"));
-//        esSinkBuilder.setBulkFlushBackoffType(config.getObject("bulk.flush.backoff.retries", ElasticsearchSinkBase.FlushBackoffType.class));
 
         esSinkBuilder.setRestClientFactory(
                 restClientBuilder -> {
@@ -182,7 +176,6 @@ public class Elasticsearch implements FlinkStreamSink<Row, Row>, FlinkBatchSink<
                 for (int i = 0; i < elementLen; i++) {
                     json.put(fieldNames[i], element.getField(i));
                 }
-
                 return Requests.indexRequest()
                         .index(indexName)
                         .type(config.getString("index_type"))
