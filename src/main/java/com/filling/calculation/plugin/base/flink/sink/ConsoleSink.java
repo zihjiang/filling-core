@@ -12,6 +12,8 @@ import org.apache.flink.api.java.operators.DataSink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
@@ -66,7 +68,7 @@ public class ConsoleSink extends RichOutputFormat<Row> implements FlinkBatchSink
 
     @Override
     public DataStreamSink<Row> outputStream(FlinkEnvironment env, DataStream<Row> dataStream) {
-        return dataStream.print().setParallelism(getParallelism()).name(getName());
+        return dataStream.print(config.getString(SOURCE_TABLE_NAME)).setParallelism(getParallelism()).name(getName());
     }
 
     @Override
