@@ -29,9 +29,13 @@ import org.apache.flink.table.descriptors.Json;
 import org.apache.flink.table.descriptors.Kafka;
 import org.apache.flink.table.descriptors.Schema;
 import org.apache.flink.types.Row;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
-
 public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row, Row> {
 
     private JSONObject config;
@@ -43,35 +47,24 @@ public class KafkaTable implements FlinkStreamSink<Row, Row>, FlinkBatchSink<Row
     public DataStreamSink<Row> outputStream(FlinkEnvironment env, DataStream<Row> dataStream) {
         StreamTableEnvironment tableEnvironment = env.getStreamTableEnvironment();
         Table table = tableEnvironment.fromDataStream(dataStream);
-        insert(tableEnvironment,table);
+//        insert(tableEnvironment,table);
+
+        List<String> columes = table.getResolvedSchema().getColumnNames();
+
+        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(
+                topic,
+                (KafkaSerializationSchema<Row>) (element, timestamp) -> {
+                    JSONObject jsonObject = new JSONObject();
+                    for (String colume : columes) {
+                        jsonObject.put(colume, element.getField(colume));
+                    }
+                    return new ProducerRecord<>(topic, "key".getBytes(StandardCharsets.UTF_8), jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8));
+                },
+                kafkaParams,
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
 
 
-//        Properties properties = new Properties();
-//        properties.setProperty("bootstrap.servers", "localhost:9092");
-//
-//        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<Row>(
-//                "my-topic",                  // target topic
-//                (KafkaSerializationSchema<Row>) getSchema1(dataStream),    // serialization schema
-//                properties,                  // producer config
-//                FlinkKafkaProducer.Semantic.EXACTLY_ONCE); // fault-tolerance
-//
-//        dataStream.addSink(myProducer);
-
-
-        return null;
-    }
-
-
-    private KafkaSerializationSchema getSchema1(DataStream<Row> dataStream) {
-        KafkaSerializationSchema result = null;
-
-
-        TypeInformation<Row> typeInfo = dataStream.getType();
-        // 忽略转换错误引发的退出任务, 提升健壮性,
-//        result = new JsonRowDeserializationSchema.Builder(typeInfo).ignoreParseErrors().build();
-
-
-        return result;
+        return dataStream.addSink(myProducer);
     }
 
 
