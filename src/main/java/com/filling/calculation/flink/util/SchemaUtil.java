@@ -57,7 +57,7 @@ public class SchemaUtil {
                 schema.field(key, "FLOAT");
             } else if (value instanceof JSONObject) {
                 schema.field(key, getTypeInformation((JSONObject) value));
-            }else if (value instanceof String) {
+            } else if (value instanceof String) {
                 schema.field(key, "STRING");
             } else if (value instanceof JSONArray) {
                 Object obj = ((JSONArray) value).get(0);
@@ -141,7 +141,7 @@ public class SchemaUtil {
             } else if (value instanceof Long) {
                 informations[i] = Types.LONG();
             } else if (value instanceof BigDecimal) {
-                informations[i] = Types.JAVA_BIG_DEC();
+                informations[i] = Types.DOUBLE();
             } else if (value instanceof JSONObject) {
                 informations[i] = getTypeInformation((JSONObject) value);
             }else if (value instanceof JSONArray) {

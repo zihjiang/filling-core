@@ -52,6 +52,12 @@ public class EsUtil {
                         case "org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo":
                             currMap.put(key, rowArrayToJsonMap(col));
                             break;
+                        case "org.apache.flink.api.common.typeinfo.SqlTimeTypeInfo":
+                            currMap.put(key, DtStringUtil.col2string(col, types.get(i).toString()));
+                            break;
+                        default:
+                            currMap.put(key, col);
+                            break;
                     }
 
 
