@@ -16,7 +16,7 @@ import org.apache.flink.types.Row;
 
 import java.util.*;
 
-public class DataGenTableStream implements FlinkStreamSource<Row> {
+public class dataGenSource implements FlinkStreamSource<Row> {
 
     private JSONObject config;
 
@@ -62,8 +62,8 @@ public class DataGenTableStream implements FlinkStreamSource<Row> {
 
         TypeInformation<Row> typeInfo = SchemaUtil.getTypeInformation((JSONObject) schemaInfo);
 
-        DataGenInput dataGenInput = new DataGenInput(fields);
-        DataGeneratorSource dataGeneratorSource = new DataGeneratorSource(dataGenInput, rowsPerSecond, numberOfRows);
+        DataGenFactory dataGenFactory = new DataGenFactory(fields);
+        DataGeneratorSource dataGeneratorSource = new DataGeneratorSource(dataGenFactory, rowsPerSecond, numberOfRows);
 
         DataStream dataStream = env.getStreamExecutionEnvironment().addSource(dataGeneratorSource).returns(typeInfo).name(getName()).setParallelism(getParallelism());
 
