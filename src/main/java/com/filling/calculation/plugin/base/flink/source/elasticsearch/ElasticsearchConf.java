@@ -42,8 +42,6 @@ public class ElasticsearchConf {
      */
     private String password;
 
-    private String keyDelimiter = "_";
-
     /**
      * client socket timeout
      */
@@ -69,18 +67,12 @@ public class ElasticsearchConf {
      */
     private int maxConnPerRoute;
 
-    /**
-     * table field names
-     */
+    private Integer bulkSize = 2000;
+
+    /** table field names */
     private String[] fieldNames;
 
-    public String[] getFieldNames() {
-        return fieldNames;
-    }
-
-    public void setFieldNames(String[] fieldNames) {
-        this.fieldNames = fieldNames;
-    }
+    private Boolean autoSchema = false;
 
     public int getMaxConnPerRoute() {
         return maxConnPerRoute;
@@ -178,11 +170,28 @@ public class ElasticsearchConf {
         this.password = password;
     }
 
-    public String getKeyDelimiter() {
-        return keyDelimiter;
+
+    public Integer getBulkSize() {
+        return bulkSize;
     }
 
-    public void setKeyDelimiter(String keyDelimiter) {
-        this.keyDelimiter = keyDelimiter;
+    public void setBulkSize(Integer bulkSize) {
+        this.bulkSize = bulkSize;
+    }
+
+    public String[] getFieldNames() {
+        return fieldNames;
+    }
+
+    public void setFieldNames(String[] fieldNames) {
+        this.fieldNames = fieldNames;
+    }
+
+    public Boolean getAutoSchema() {
+        return autoSchema;
+    }
+
+    public void setAutoSchema(Boolean autoSchema) {
+        this.autoSchema = autoSchema;
     }
 }

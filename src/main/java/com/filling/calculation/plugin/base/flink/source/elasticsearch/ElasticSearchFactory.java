@@ -2,30 +2,32 @@ package com.filling.calculation.plugin.base.flink.source.elasticsearch;
 
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.types.Row;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
- * @author cclient
+ * @author zihjiang
  */
-public class ElasticSearchInput extends RichParallelSourceFunction<Row> {
+public class ElasticSearchFactory extends RichParallelSourceFunction<Row> {
     private static RestHighLevelClient client;
     private static ElasticsearchConf elasticsearchConf;
     private static String scrollId;
+    private static TypeInformation<Row> typeInfo;
 
-    public ElasticSearchInput(ElasticsearchConf elasticsearchConf) {
-        ElasticSearchInput.elasticsearchConf = elasticsearchConf;
+    public ElasticSearchFactory(ElasticsearchConf elasticsearchConf, TypeInformation<Row> typeInfo) {
+        ElasticSearchFactory.elasticsearchConf = elasticsearchConf;
+        ElasticSearchFactory.typeInfo = typeInfo;
     }
 
     @Override
@@ -38,17 +40,19 @@ public class ElasticSearchInput extends RichParallelSourceFunction<Row> {
             SearchResponse searchResponse;
             // 当并行度大于1时, 使用slice scroll API
             if (sliceMax > 1) {
-                searchResponse = ElasticsearchUtil.searchByScroll(client, elasticsearchConf.getIndex(), sliceId, sliceMax);
+                searchResponse = ElasticsearchUtil.searchByScroll(client, elasticsearchConf, sliceId, sliceMax);
             } else {
-                searchResponse = ElasticsearchUtil.searchByScroll(client, elasticsearchConf.getIndex());
+                searchResponse = ElasticsearchUtil.searchByScroll(client, elasticsearchConf);
             }
             scrollId = searchResponse.getScrollId();
             if (searchResponse != null) {
                 // 第一次查询,
                 for (SearchHit hit : searchResponse.getHits().getHits()) {
                     Row row = Row.withNames();
-                    for (String key : hit.getSourceAsMap().keySet()) {
-                        row.setField(key, hit.getSourceAsMap().get(key));
+
+                    for (int i = 0; i < elasticsearchConf.getFieldNames().length; i++) {
+                        String fieldName = elasticsearchConf.getFieldNames()[i];
+                        row.setField(fieldName, hit.getSourceAsMap().get(fieldName));
                     }
                     sourceContext.collect(row);
                 }
@@ -60,8 +64,8 @@ public class ElasticSearchInput extends RichParallelSourceFunction<Row> {
                     }
                     for (Map<String, Object> map : esData) {
                         Row row = Row.withNames();
-                        for (Map.Entry entry : map.entrySet()) {
-                            row.setField(entry.getKey().toString(), entry.getValue());
+                        for (String fieldName : elasticsearchConf.getFieldNames()) {
+                            row.setField(fieldName, map.get(fieldName));
                         }
                         sourceContext.collect(row);
                     }
