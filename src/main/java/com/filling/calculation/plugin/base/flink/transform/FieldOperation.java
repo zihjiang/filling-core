@@ -51,7 +51,7 @@ public class FieldOperation implements FlinkBatchTransform<Row, Row> , FlinkStre
             .replaceAll("\\{target_field_name}", config.getString(TARGET_FIELD_NAME))
             .replaceAll("\\{table_name}", config.getString(SOURCE_TABLE_NAME));
 
-//        Table table = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)).addColumns(config.getString(SCRIPT_NAME)).as(config.getString(TARGET_FIELD_NAME));
+//        Table table = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)).addOrReplaceColumns(config.getString(SCRIPT_NAME)).as(config.getString(TARGET_FIELD_NAME));
 
         Table table = tableEnvironment.sqlQuery(sql);
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, table) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, table, false);

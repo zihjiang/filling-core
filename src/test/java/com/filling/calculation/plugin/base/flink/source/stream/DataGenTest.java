@@ -9,6 +9,8 @@ import org.junit.Test;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class DataGenTest {
@@ -26,9 +28,26 @@ public class DataGenTest {
     @Test
     public void testGenDataAggsConsole() throws Exception {
         configPath = "flink/dataGenAggsConsole.json";
+
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
         Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
     }
 
+    @Test
+    public void testGenDataefile() throws Exception {
+        configPath = "flink/dataGen2file.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
+
+
+    @Test
+    public void testGenDatae2es() throws Exception {
+        configPath = "flink/dataGen2es.json";
+        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
+
+        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
+    }
 }

@@ -98,8 +98,8 @@ public class DataAggregates implements FlinkBatchTransform<Row, Row>, FlinkStrea
 
         SELECT_FIELDS = config.getObject("group.fields", List.class);
 
-        if(config.getString("custom.field") != null ) {
-            CUSTOM_FIELDS = config.getObject("custom.field", List.class);
+        if(config.getString("custom.fields") != null ) {
+            CUSTOM_FIELDS = config.getObject("custom.fields", List.class);
         }
 
         ROWTIME_WATERMARK_FIELD = config.getString("rowtime.watermark.field");

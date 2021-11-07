@@ -18,6 +18,10 @@ import java.util.regex.Pattern;
 
 public class ScalarParsing extends ScalarFunction {
 
+    public ScalarParsing() {
+        super();
+    }
+
     private RowTypeInfo rowTypeInfo;
     private List<JSONObject> fields;
 

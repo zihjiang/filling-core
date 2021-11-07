@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.flink.table.api.Expressions.$;
+
 /**
  * @program: calculation-core
  * @description:
@@ -65,8 +67,13 @@ public class DataSelector implements FlinkBatchTransform<Row, Row>, FlinkStreamT
 
         for (String table_name: SELECT_RESULT_TABLE_NAME) {
 
-            Table table = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)).where(config.getString(TABLE_AND_WHERE.get(table_name)));
-            tableEnvironment.createTemporaryView(table_name, table);
+            String sql = "select * from {source_table_name} where 1=1 and {where}"
+                    .replace("{source_table_name}", config.getString(SOURCE_TABLE_NAME))
+                    .replace("{where}",config.getString(TABLE_AND_WHERE.get(table_name)));
+
+            tableEnvironment.createTemporaryView(table_name, tableEnvironment.sqlQuery(sql));
+//            Table table = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)).where(config.getString(TABLE_AND_WHERE.get(table_name)));
+//            tableEnvironment.createTemporaryView(table_name, table);
         }
 
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, tableEnvironment.from(config.getString(SOURCE_TABLE_NAME))) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, tableEnvironment.from(config.getString(SOURCE_TABLE_NAME)), false);

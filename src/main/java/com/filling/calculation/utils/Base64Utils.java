@@ -323,162 +323,6 @@ public class Base64Utils {
 
 
         public static void main(String[] args) {
-            String str = "{\n" +
-                    "    \"env\": {\n" +
-                    "        \"execution.parallelism\": 1\n" +
-                    "    },\n" +
-                    "    \"source\": [\n" +
-                    "        {\n" +
-                    "            \"schema\": \"{\\\"hostid\\\": \\\"host01\\\",\\\"metric\\\": \\\"cpu_user\\\",\\\"value\\\": 13, \\\"auth\\\": \\\"1,2,3,4,5\\\"}\",\n" +
-                    "            \"path\": \"/tmp/user.json\",\n" +
-                    "            \"result_table_name\": \"FileSourceTable\",\n" +
-                    "            \"plugin_name\": \"FileSource\",\n" +
-                    "            \"format.type\": \"json\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"schema\": \"{\\\"categoryName\\\":\\\"手机银行\\\",  \\\"department\\\": \\\"开发部\\\", \\\"host\\\": \\\"host01\\\",  \\\"createTime\\\": \\\"2021-01-01: 00:00:00\\\",  \\\"principal\\\": \\\"张三\\\"}\",\n" +
-                    "            \"path\": \"/tmp/group.json\",\n" +
-                    "            \"result_table_name\": \"FileSource_category\",\n" +
-                    "            \"plugin_name\": \"FileSource\",\n" +
-                    "            \"format.type\": \"json\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"transform\": [\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"FileSourceTable\",\n" +
-                    "            \"result_table_name\": \"sql_table20\",\n" +
-                    "            \"plugin_name\": \"Sql\",\n" +
-                    "            \"sql\": \"select * from FileSourceTable where `value` > 13\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"FileSourceTable\",\n" +
-                    "            \"result_table_name\": \"sql_table21\",\n" +
-                    "            \"plugin_name\": \"DataJoin\",\n" +
-                    "            \"join.result_table_name\": [\n" +
-                    "                \"FileSource_category\"\n" +
-                    "            ],\n" +
-                    "            \"join.FileSource_category.where\": \"hostid = host\",\n" +
-                    "            \"join.FileSource_category.type\": \"left\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table21\",\n" +
-                    "            \"result_table_name\": \"sql_table22\",\n" +
-                    "            \"plugin_name\": \"EncodeBase64\",\n" +
-                    "            \"source_field\": \"metric\",\n" +
-                    "            \"target_field\": \"metric2\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table22\",\n" +
-                    "            \"result_table_name\": \"sql_table23\",\n" +
-                    "            \"plugin_name\": \"DecodeBase64\",\n" +
-                    "            \"source_field\": \"metric2\",\n" +
-                    "            \"target_field\": \"metric\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table23\",\n" +
-                    "            \"result_table_name\": \"sql_table24\",\n" +
-                    "            \"plugin_name\": \"FieldRemove\",\n" +
-                    "            \"field\": [\n" +
-                    "                \"hostid\"\n" +
-                    "            ]\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table24\",\n" +
-                    "            \"result_table_name\": \"sql_table25\",\n" +
-                    "            \"plugin_name\": \"FieldOrder\",\n" +
-                    "            \"field_and_sort\": [\n" +
-                    "                \"value.desc\",\n" +
-                    "                \"metric.desc\"\n" +
-                    "            ]\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table25\",\n" +
-                    "            \"result_table_name\": \"sql_table26\",\n" +
-                    "            \"plugin_name\": \"FieldRename\",\n" +
-                    "            \"source_field\": \"value\",\n" +
-                    "            \"target_field\": \"value2\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table26\",\n" +
-                    "            \"result_table_name\": \"sql_table27\",\n" +
-                    "            \"plugin_name\": \"FieldSelect\",\n" +
-                    "            \"field\": [\n" +
-                    "                \"categoryName\",\n" +
-                    "                \"metric\",\n" +
-                    "                \"auth\"\n" +
-                    "            ]\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table27\",\n" +
-                    "            \"result_table_name\": \"sql_table28\",\n" +
-                    "            \"plugin_name\": \"FieldSplit\",\n" +
-                    "            \"source_field\": \"auth\",\n" +
-                    "            \"fields\": [\n" +
-                    "                \"n1\",\n" +
-                    "                \"n2\",\n" +
-                    "                \"n3\",\n" +
-                    "                \"n4\",\n" +
-                    "                \"n5\",\n" +
-                    "                \"n6\"\n" +
-                    "            ],\n" +
-                    "            \"separator\": \"\\\\|\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table28\",\n" +
-                    "            \"result_table_name\": \"sql_table29\",\n" +
-                    "            \"plugin_name\": \"FieldOperation\",\n" +
-                    "            \"target_field\": \"newfield\",\n" +
-                    "            \"script\": \"concat(n1,n2)\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table29\",\n" +
-                    "            \"result_table_name\": \"sql_table30\",\n" +
-                    "            \"plugin_name\": \"FieldTypeConver\",\n" +
-                    "            \"target_field_type\": \"int\",\n" +
-                    "            \"source_field\": [\n" +
-                    "                \"newfield\"\n" +
-                    "            ]\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table30\",\n" +
-                    "            \"result_table_name\": \"sql_table31\",\n" +
-                    "            \"plugin_name\": \"FieldSelect\",\n" +
-                    "            \"field\": [\n" +
-                    "                \"n1\",\n" +
-                    "                \"n2\",\n" +
-                    "                \"newfield0\"\n" +
-                    "            ]\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"source_table_name\": \"sql_table31\",\n" +
-                    "            \"result_table_name\": \"sql_table32\",\n" +
-                    "            \"plugin_name\": \"DataSelector\",\n" +
-                    "            \"select.result_table_name\": [\n" +
-                    "                \"sql_table33\",\n" +
-                    "                \"sql_table34\"\n" +
-                    "            ],\n" +
-                    "            \"select.sql_table33.where\": \" n1 ='1'\",\n" +
-                    "            \"select.sql_table34.where\": \" n1 !='1'\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"sink\": [\n" +
-                    "        {\n" +
-                    "            \"path\": \"/tmp/1\",\n" +
-                    "            \"write_mode\": \"OVERWRITE\",\n" +
-                    "            \"format\": \"json\",\n" +
-                    "            \"source_table_name\": \"sql_table32\",\n" +
-                    "            \"plugin_name\": \"FileSink\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"path\": \"/tmp/4\",\n" +
-                    "            \"write_mode\": \"OVERWRITE\",\n" +
-                    "            \"format\": \"json\",\n" +
-                    "            \"source_table_name\": \"sql_table31\",\n" +
-                    "            \"plugin_name\": \"FileSink\"\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}";
-
             String str2 = "{\n" +
                     "  \"env\": {\n" +
                     "    \"execution.parallelism\": 1,\n" +
@@ -487,10 +331,10 @@ public class Base64Utils {
                     "  },\n" +
                     "  \"source\": [\n" +
                     "    {\n" +
-                    "      \"plugin_name\": \"DataGenTableStream\",\n" +
-                    "      \"result_table_name\": \"dataGenTableStreamTable\",\n" +
+                    "      \"plugin_name\": \"dataGenSource\",\n" +
+                    "      \"result_table_name\": \"dataGenSourceTable\",\n" +
                     "      \"schema\": \"{\\\"id\\\":1, \\\"host\\\":\\\"192.168.1.103\\\",\\\"source\\\":\\\"datasource\\\",\\\"MetricsName\\\":\\\"cpu\\\",\\\"value\\\":49}\",\n" +
-                    "      \"rows-per-second\": 10,\n" +
+                    "      \"rows-per-second\": 10000,\n" +
                     "      \"number-of-rows\": 100000000,\n" +
                     "      \"fields\": [\n" +
                     "        {\n" +
@@ -526,13 +370,13 @@ public class Base64Utils {
                     "          }\n" +
                     "        }\n" +
                     "      ],\n" +
-                    "      \"parallelism\": 2,\n" +
+                    "      \"parallelism\": 1,\n" +
                     "      \"name\": \"my-datagen-source\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"transform\": [\n" +
                     "    {\n" +
-                    "      \"source_table_name\": \"dataGenTableStreamTable\",\n" +
+                    "      \"source_table_name\": \"dataGenSourceTable\",\n" +
                     "      \"result_table_name\": \"FieldOperation_time\",\n" +
                     "      \"plugin_name\": \"FieldOperation\",\n" +
                     "      \"target_field\": \"_time\",\n" +
@@ -542,11 +386,11 @@ public class Base64Utils {
                     "  \"sink\": [\n" +
                     "    {\n" +
                     "      \"source_table_name\": \"FieldOperation_time\",\n" +
-                    "      \"plugin_name\": \"KafkaTable\",\n" +
-                    "      \"producer.bootstrap.servers\": \"192.168.1.218:9092\",\n" +
-                    "      \"topics\": \"test\",\n" +
-                    "      \"parallelism\": 2,\n" +
-                    "      \"name\": \"my-kafka-sink\"\n" +
+                    "      \"plugin_name\": \"Elasticsearch\",\n" +
+                    "      \"hosts\": [\n" +
+                    "        \"192.168.100.6:9200\"\n" +
+                    "      ],\n" +
+                    "      \"index\": \"test001\"\n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";

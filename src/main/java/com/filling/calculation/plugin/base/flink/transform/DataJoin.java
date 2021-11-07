@@ -30,7 +30,7 @@ import java.util.Map;
 public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTransform<Row, Row> {
 
 
-//    {
+    //    {
 //        "source_table_name": "sql_table29",
 //        "result_table_name": "sql_ta9le30",
 //        "plugin_name": "DataJoin",
@@ -41,15 +41,17 @@ public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTrans
     private JSONObject config;
 
     private static String JOIN_SOURCE_TABLE_NAME_NAME = "join.source_table_name";
-    private static List<String> JOIN_SOURCE_TABLE_NAME= null;
+    private static List<String> JOIN_SOURCE_TABLE_NAME = null;
 
     private static Map<String, String> TABLE_AND_WHERE = new HashMap<>();
 
     private static Map<String, String> TABLE_AND_TYPE = new HashMap<>();
 
     String PRE = "join.";
-    String WHERE_SUFFIX= ".where";
-    String TYPE_SUFFIX= ".type";
+    String WHERE_SUFFIX = ".where";
+    String TYPE_SUFFIX = ".type";
+    // 默认的需要join配置
+    String SECONDARY = "secondary";
 
     @Override
     public DataStream<Row> processStream(FlinkEnvironment env, DataStream<Row> dataStream) {
@@ -70,11 +72,17 @@ public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTrans
 
         // 主表
         Table mainTable = tableEnvironment.from(config.getString(SOURCE_TABLE_NAME));
-        for (String table_name: JOIN_SOURCE_TABLE_NAME) {
+        for (String table_name : JOIN_SOURCE_TABLE_NAME) {
 
-            Table secondaryTable = tableEnvironment.from(table_name);
-            mainTable = mainTable.leftOuterJoin(secondaryTable, config.getString(TABLE_AND_WHERE.get(table_name)));
-//            mainTable = mainTable.join(secondaryTable).where(config.getString(TABLE_AND_WHERE.get(table_name)));
+            String where = config.getString(TABLE_AND_WHERE.get(table_name));
+            String joinType = config.getString(TABLE_AND_TYPE.get(table_name));
+            String sql = "select * from {main} {joinType} join {secondary} on {where}"
+                    .replaceAll("\\{where\\}", where)
+                    .replaceAll("\\{joinType\\}", joinType)
+                    .replaceAll("\\{main\\}", config.getString(SOURCE_TABLE_NAME))
+                    .replaceAll("\\{secondary\\}", table_name);
+
+            mainTable = tableEnvironment.sqlQuery(sql);
         }
 
         return "batch".equals(type) ? TableUtil.tableToDataSet((BatchTableEnvironment) tableEnvironment, mainTable) : TableUtil.tableToDataStream((StreamTableEnvironment) tableEnvironment, mainTable, false);
@@ -94,23 +102,32 @@ public class DataJoin implements FlinkBatchTransform<Row, Row>, FlinkStreamTrans
     @Override
     public CheckResult checkConfig() {
         for (String table: JOIN_SOURCE_TABLE_NAME) {
-            if(!CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX).isSuccess()) {
+            if(!CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX).isSuccess() || CheckConfigUtil.check(config, PRE + SECONDARY + WHERE_SUFFIX).isSuccess()) {
                 return CheckConfigUtil.check(config, PRE + table + WHERE_SUFFIX);
             }
         }
-        return CheckConfigUtil.check(config,JOIN_SOURCE_TABLE_NAME_NAME);
+        return CheckConfigUtil.check(config, JOIN_SOURCE_TABLE_NAME_NAME);
     }
 
     @Override
     public void prepare(FlinkEnvironment env) {
         JOIN_SOURCE_TABLE_NAME = config.getObject(JOIN_SOURCE_TABLE_NAME_NAME, List.class);
 
-        for (String table_name: JOIN_SOURCE_TABLE_NAME) {
+        for (String table_name : JOIN_SOURCE_TABLE_NAME) {
             String where = PRE + table_name + WHERE_SUFFIX;
             String type = PRE + table_name + TYPE_SUFFIX;
-            TABLE_AND_WHERE.put(table_name, where);
+            if (StringUtils.isEmpty(config.getString(where))) {
 
+                String swhere = PRE + SECONDARY + WHERE_SUFFIX;
+                String stype = PRE + SECONDARY + TYPE_SUFFIX;
+                System.out.println("config " + where + "not found, use secondary");
+                System.out.println("config " + type + "not found, use secondary");
+                config.put(where, config.getString(swhere));
+                config.put(type, config.getString(stype));
+            }
+            TABLE_AND_WHERE.put(table_name, where);
             TABLE_AND_TYPE.put(table_name, type);
+
         }
     }
 }

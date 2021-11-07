@@ -57,7 +57,7 @@ public class FieldSplit implements FlinkStreamTransform<Row, Row>, FlinkBatchTra
     private Object process(TableEnvironment tableEnvironment, Object data, String type) {
 
         String FUNCTION_NAME = "split";
-        String sql = "select * from (select *,{function_name}(`{source_field}`) as info_row  from {source_table_name}) t1"
+        String sql = "select info_row.*, * from (select *,{function_name}(`{source_field}`) as info_row  from {source_table_name}) t1"
             .replaceAll("\\{source_table_name}", config.getString(SOURCE_TABLE_NAME))
             .replaceAll("\\{function_name}", FUNCTION_NAME)
             .replaceAll("\\{source_field}", config.getString(SOURCE_FIELD_NAME));

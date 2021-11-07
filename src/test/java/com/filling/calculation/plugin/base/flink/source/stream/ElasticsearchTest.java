@@ -11,11 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-public class CaseTest {
+public class ElasticsearchTest {
 
     private String configPath;
 
     private String rootPath;
+
 
     @Before
     public void setup() {
@@ -24,32 +25,8 @@ public class CaseTest {
     }
 
     @Test
-    public void testCase01() throws Exception {
-        configPath = "flink/case01.json";
-        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
-
-        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
-    }
-
-    @Test
-    public void testCase02() throws Exception {
-        configPath = "flink/case02.json";
-        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
-
-        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
-    }
-
-    @Test
-    public void testCase03() throws Exception {
-        configPath = "flink/case03.json";
-        String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
-
-        Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
-    }
-
-    @Test
-    public void testCase04() throws Exception {
-        configPath = "flink/case04.json";
+    public void testEs2es() throws Exception {
+        configPath = "flink/es2es.json";
         String str = Files.lines(Paths.get(rootPath + configPath), StandardCharsets.UTF_8).collect(Collectors.joining());
 
         Filling.entryPoint(str, Engine.FLINK, RunModel.PROD);
