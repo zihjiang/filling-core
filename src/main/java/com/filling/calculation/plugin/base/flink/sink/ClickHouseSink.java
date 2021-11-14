@@ -127,7 +127,6 @@ public class ClickHouseSink implements FlinkStreamSink<Row, Row>, FlinkBatchSink
 
     @Override
     public DataSink<Row> outputBatch(FlinkEnvironment env, DataSet<Row> dataSet) {
-//        createSink(env.getBatchTableEnvironment(),table);
         dataSet.output(new ClickHouseOutputFormat( driverName,  dbUrl,  username,  password,  query,  batchSize,  batchIntervalMs,  maxRetries,  params));
 
 //        dataSet.output(JdbcOutputFormat.buildJdbcOutputFormat()

@@ -5,7 +5,6 @@ import com.filling.calculation.Filling;
 import com.filling.calculation.domain.PreviewResult;
 import com.filling.calculation.domain.RunModel;
 import com.filling.calculation.flink.util.Engine;
-import com.github.wnameless.json.flattener.JsonFlattener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,8 +80,8 @@ public class JdbcSourceTest {
     @Test
     public void testJsonFlatten() {
         String json = "{ \"a\" : { \"b\" : 1, \"c\": null, \"d\": [false, true] }, \"e\": \"f\", \"g\":2.3 }";
-        Map<String, Object> flattenJson = JsonFlattener.flattenAsMap(json);
-        flattenJson.keySet();
+//        Map<String, Object> flattenJson = JsonFlattener.flattenAsMap(json);
+//        flattenJson.keySet();
     }
 
 
